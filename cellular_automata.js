@@ -1,4 +1,4 @@
-var Grid = window.Grid;
+var Grid = require('./lib/grid');
 
 document.addEventListener('DOMContentLoaded', function() {
   window.canvasEl = document.getElementById('canvas');
@@ -107,8 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
     [36, 6],
     [37, 5],
     [37, 6],
-
-
   ]);
 
   setInterval(function() {

@@ -1,0 +1,20 @@
+{
+  "name": "cellular_automata",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cellular_automata.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bencalabrese/cellular_automata.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bencalabrese/cellular_automata/issues"
+  },
+  "homepage": "https://github.com/bencalabrese/cellular_automata#readme"
+}
