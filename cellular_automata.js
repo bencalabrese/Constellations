@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   setInterval(function() {
     window.grid.cycle(window.ctx);
-  }, 250);
+  }, 200);
 
   // window.grid.render(window.ctx);
 
