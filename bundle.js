@@ -45,117 +45,19 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Grid = __webpack_require__(1);
-	var Block = __webpack_require__(3);
+	var Structures = __webpack_require__(6);
 	
 	document.addEventListener('DOMContentLoaded', function() {
 	  window.canvasEl = document.getElementById('canvas');
 	  window.ctx = window.canvasEl.getContext('2d');
 	  window.grid = new Grid(80, 80);
-	  window.Block = Block;
+	  window.Structures = Structures;
 	
-	
-	  window.grid.awakenCells([
-	    // Block
-	    [23,23],
-	    [23,24],
-	    [24,23],
-	    [24,24],
-	
-	    // Blinker
-	    [40,43],
-	    [40,44],
-	    [40,45],
-	
-	    //Cross
-	    [11, 13],
-	    [11, 14],
-	    [11, 15],
-	    [11, 16],
-	    [12, 13],
-	    [12, 16],
-	    [13, 11],
-	    [13, 12],
-	    [13, 13],
-	    [13, 16],
-	    [13, 17],
-	    [13, 18],
-	    [14, 11],
-	    [14, 18],
-	    [15, 11],
-	    [15, 18],
-	    [16, 11],
-	    [16, 12],
-	    [16, 13],
-	    [16, 16],
-	    [16, 17],
-	    [16, 18],
-	    [17, 13],
-	    [17, 16],
-	    [18, 13],
-	    [18, 14],
-	    [18, 15],
-	    [18, 16],
-	
-	    // Kok's Galaxy
-	    [50, 50],
-	    [50, 51],
-	    [50, 52],
-	    [50, 53],
-	    [50, 54],
-	    [50, 55],
-	    [51, 50],
-	    [51, 51],
-	    [51, 52],
-	    [51, 53],
-	    [51, 54],
-	    [51, 55],
-	
-	    [50, 57],
-	    [51, 57],
-	    [52, 57],
-	    [53, 57],
-	    [54, 57],
-	    [55, 57],
-	    [50, 58],
-	    [51, 58],
-	    [52, 58],
-	    [53, 58],
-	    [54, 58],
-	    [55, 58],
-	
-	    [57, 53],
-	    [57, 54],
-	    [57, 55],
-	    [57, 56],
-	    [57, 57],
-	    [57, 58],
-	    [58, 53],
-	    [58, 54],
-	    [58, 55],
-	    [58, 56],
-	    [58, 57],
-	    [58, 58],
-	
-	    [53, 50],
-	    [54, 50],
-	    [55, 50],
-	    [56, 50],
-	    [57, 50],
-	    [58, 50],
-	    [53, 51],
-	    [54, 51],
-	    [55, 51],
-	    [56, 51],
-	    [57, 51],
-	    [58, 51],
-	
-	    // Glider
-	    [35, 6],
-	    [36, 4],
-	    [36, 6],
-	    [37, 5],
-	    [37, 6],
-	  ]);
+	  new Structures.Block(window.grid, [22,22]);
+	  new Structures.Blinker(window.grid, [39,42]);
+	  new Structures.Cross(window.grid, [10,12]);
+	  new Structures.KoksGalaxy(window.grid, [49,49]);
+	  new Structures.Glider(window.grid, [34,5]);
 	
 	  setInterval(function() {
 	    window.grid.cycle(window.ctx);
@@ -254,7 +156,7 @@
 	  var self = this;
 	
 	  cells.forEach(function(cellPos) {
-	    self.grid[cellPos[0]][cellPos[1]].alive = true;
+	    self.grid[cellPos[1]][cellPos[0]].alive = true;
 	  });
 	};
 	
@@ -262,7 +164,7 @@
 	  var self = this;
 	
 	  cells.forEach(function(cellPos) {
-	    self.grid[cellPos[0]][cellPos[1]].alive = false;
+	    self.grid[cellPos[1]][cellPos[0]].alive = false;
 	  });
 	};
 	
@@ -405,6 +307,215 @@
 	};
 	
 	module.exports = Util;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Block = __webpack_require__(3),
+	    Blinker = __webpack_require__(7),
+	    Cross = __webpack_require__(8),
+	    KoksGalaxy = __webpack_require__(9),
+	    Glider = __webpack_require__(10);
+	
+	var Structures = {
+	  Block: Block,
+	  Blinker: Blinker,
+	  Cross: Cross,
+	  KoksGalaxy: KoksGalaxy,
+	  Glider: Glider
+	};
+	
+	module.exports = Structures;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(4),
+	    Util = __webpack_require__(5);
+	
+	var Blinker = function(grid, startPos) {
+	  Structure.call(this, Blinker.OPTIONS);
+	
+	  this.render(grid, startPos);
+	};
+	
+	Util.inherits(Blinker, Structure);
+	
+	Blinker.OPTIONS = {
+	  height: 5,
+	  width : 3,
+	  liveCellDeltas : [
+	    [1,1],
+	    [1,2],
+	    [1,3]
+	  ]
+	};
+	
+	module.exports = Blinker;
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(4),
+	    Util = __webpack_require__(5);
+	
+	var Cross = function(grid, startPos) {
+	  Structure.call(this, Cross.OPTIONS);
+	
+	  this.render(grid, startPos);
+	};
+	
+	Util.inherits(Cross, Structure);
+	
+	Cross.OPTIONS = {
+	  height: 10,
+	  width : 10,
+	  liveCellDeltas : [
+	    [1, 3],
+	    [1, 4],
+	    [1, 5],
+	    [1, 6],
+	    [2, 3],
+	    [2, 6],
+	    [3, 1],
+	    [3, 2],
+	    [3, 3],
+	    [3, 6],
+	    [3, 7],
+	    [3, 8],
+	    [4, 1],
+	    [4, 8],
+	    [5, 1],
+	    [5, 8],
+	    [6, 1],
+	    [6, 2],
+	    [6, 3],
+	    [6, 6],
+	    [6, 7],
+	    [6, 8],
+	    [7, 3],
+	    [7, 6],
+	    [8, 3],
+	    [8, 4],
+	    [8, 5],
+	    [8, 6]
+	  ]
+	};
+	
+	module.exports = Cross;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(4),
+	    Util = __webpack_require__(5);
+	
+	var KoksGalaxy = function(grid, startPos) {
+	  Structure.call(this, KoksGalaxy.OPTIONS);
+	
+	  this.render(grid, startPos);
+	};
+	
+	Util.inherits(KoksGalaxy, Structure);
+	
+	KoksGalaxy.OPTIONS = {
+	  height: 11,
+	  width : 11,
+	  liveCellDeltas : [
+	
+	    [1, 1],
+	    [1, 2],
+	    [1, 3],
+	    [1, 4],
+	    [1, 5],
+	    [1, 6],
+	    [2, 1],
+	    [2, 2],
+	    [2, 3],
+	    [2, 4],
+	    [2, 5],
+	    [2, 6],
+	
+	    [1, 8],
+	    [2, 8],
+	    [3, 8],
+	    [4, 8],
+	    [5, 8],
+	    [6, 8],
+	    [1, 9],
+	    [2, 9],
+	    [3, 9],
+	    [4, 9],
+	    [5, 9],
+	    [6, 9],
+	
+	    [8, 4],
+	    [8, 5],
+	    [8, 6],
+	    [8, 7],
+	    [8, 8],
+	    [8, 9],
+	    [9, 4],
+	    [9, 5],
+	    [9, 6],
+	    [9, 7],
+	    [9, 8],
+	    [9, 9],
+	
+	    [4, 1],
+	    [5, 1],
+	    [6, 1],
+	    [7, 1],
+	    [8, 1],
+	    [9, 1],
+	    [4, 2],
+	    [5, 2],
+	    [6, 2],
+	    [7, 2],
+	    [8, 2],
+	    [9, 2]
+	  ]
+	};
+	
+	module.exports = KoksGalaxy;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(4),
+	    Util = __webpack_require__(5);
+	
+	var Glider = function(grid, startPos) {
+	  Structure.call(this, Glider.OPTIONS);
+	
+	  this.render(grid, startPos);
+	};
+	
+	Util.inherits(Glider, Structure);
+	
+	Glider.OPTIONS = {
+	  height: 5,
+	  width : 5,
+	  liveCellDeltas : [
+	    [1, 3],
+	    [2, 1],
+	    [2, 3],
+	    [3, 2],
+	    [3, 3]
+	  ]
+	};
+	
+	module.exports = Glider;
 
 
 /***/ }

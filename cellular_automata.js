@@ -1,115 +1,17 @@
 var Grid = require('./lib/grid');
-var Block = require('./lib/structures/block');
+var Structures = require('./lib/structures/structures');
 
 document.addEventListener('DOMContentLoaded', function() {
   window.canvasEl = document.getElementById('canvas');
   window.ctx = window.canvasEl.getContext('2d');
   window.grid = new Grid(80, 80);
-  window.Block = Block;
+  window.Structures = Structures;
 
-
-  window.grid.awakenCells([
-    // Block
-    [23,23],
-    [23,24],
-    [24,23],
-    [24,24],
-
-    // Blinker
-    [40,43],
-    [40,44],
-    [40,45],
-
-    //Cross
-    [11, 13],
-    [11, 14],
-    [11, 15],
-    [11, 16],
-    [12, 13],
-    [12, 16],
-    [13, 11],
-    [13, 12],
-    [13, 13],
-    [13, 16],
-    [13, 17],
-    [13, 18],
-    [14, 11],
-    [14, 18],
-    [15, 11],
-    [15, 18],
-    [16, 11],
-    [16, 12],
-    [16, 13],
-    [16, 16],
-    [16, 17],
-    [16, 18],
-    [17, 13],
-    [17, 16],
-    [18, 13],
-    [18, 14],
-    [18, 15],
-    [18, 16],
-
-    // Kok's Galaxy
-    [50, 50],
-    [50, 51],
-    [50, 52],
-    [50, 53],
-    [50, 54],
-    [50, 55],
-    [51, 50],
-    [51, 51],
-    [51, 52],
-    [51, 53],
-    [51, 54],
-    [51, 55],
-
-    [50, 57],
-    [51, 57],
-    [52, 57],
-    [53, 57],
-    [54, 57],
-    [55, 57],
-    [50, 58],
-    [51, 58],
-    [52, 58],
-    [53, 58],
-    [54, 58],
-    [55, 58],
-
-    [57, 53],
-    [57, 54],
-    [57, 55],
-    [57, 56],
-    [57, 57],
-    [57, 58],
-    [58, 53],
-    [58, 54],
-    [58, 55],
-    [58, 56],
-    [58, 57],
-    [58, 58],
-
-    [53, 50],
-    [54, 50],
-    [55, 50],
-    [56, 50],
-    [57, 50],
-    [58, 50],
-    [53, 51],
-    [54, 51],
-    [55, 51],
-    [56, 51],
-    [57, 51],
-    [58, 51],
-
-    // Glider
-    [35, 6],
-    [36, 4],
-    [36, 6],
-    [37, 5],
-    [37, 6],
-  ]);
+  new Structures.Block(window.grid, [22,22]);
+  new Structures.Blinker(window.grid, [39,42]);
+  new Structures.Cross(window.grid, [10,12]);
+  new Structures.KoksGalaxy(window.grid, [49,49]);
+  new Structures.Glider(window.grid, [34,5]);
 
   setInterval(function() {
     window.grid.cycle(window.ctx);
