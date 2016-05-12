@@ -45,11 +45,13 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Grid = __webpack_require__(1);
+	var Block = __webpack_require__(3);
 	
 	document.addEventListener('DOMContentLoaded', function() {
 	  window.canvasEl = document.getElementById('canvas');
 	  window.ctx = window.canvasEl.getContext('2d');
 	  window.grid = new Grid(80, 80);
+	  window.Block = Block;
 	
 	
 	  window.grid.awakenCells([
@@ -323,6 +325,86 @@
 	};
 	
 	module.exports = Cell;
+
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(4),
+	    Util = __webpack_require__(5);
+	
+	var Block = function(grid, startPos) {
+	  Structure.call(this, Block.OPTIONS);
+	
+	  this.render(grid, startPos);
+	};
+	
+	Util.inherits(Block, Structure);
+	
+	Block.OPTIONS = {
+	  height: 4,
+	  width : 4,
+	  liveCellDeltas : [
+	    [1,1],
+	    [1,2],
+	    [2,1],
+	    [2,2]
+	  ]
+	};
+	
+	module.exports = Block;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	var Structure = function(options, grid, startPos) {
+	  this.height = options.height;
+	  this.width = options.width;
+	  this.liveCellDeltas = options.liveCellDeltas;
+	};
+	
+	Structure.prototype.render = function (grid, startPos) {
+	  this.clearArea(grid, startPos);
+	
+	  var positions = this.liveCellDeltas.map(function(delta){
+	    return [startPos[0] + delta[0], startPos[1] + delta[1]];
+	  });
+	
+	  grid.awakenCells(positions);
+	};
+	
+	Structure.prototype.clearArea = function (grid, startPos) {
+	  var targetCells = [];
+	
+	  for (var y = 0; y < this.height; y++) {
+	    for (var x = 0; x < this.width; x++) {
+	      targetCells.push([startPos[0] + x, startPos[1] + y]);
+	    }
+	  }
+	
+	  grid.killCells(targetCells);
+	};
+	
+	module.exports = Structure;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	var Util = {
+	  inherits: function (ChildClass, ParentClass) {
+	    function Surrogate () {}
+	    Surrogate.prototype = ParentClass.prototype;
+	    ChildClass.prototype = new Surrogate();
+	    ChildClass.prototype.constructor = ChildClass;
+	  }
+	};
+	
+	module.exports = Util;
 
 
 /***/ }

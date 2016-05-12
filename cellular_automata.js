@@ -1,9 +1,11 @@
 var Grid = require('./lib/grid');
+var Block = require('./lib/structures/block');
 
 document.addEventListener('DOMContentLoaded', function() {
   window.canvasEl = document.getElementById('canvas');
   window.ctx = window.canvasEl.getContext('2d');
   window.grid = new Grid(80, 80);
+  window.Block = Block;
 
 
   window.grid.awakenCells([
