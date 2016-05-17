@@ -9,13 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   new Structures.Block(window.grid, [22,22]);
   new Structures.Blinker(window.grid, [39,42]);
-  new Structures.Cross(window.grid, [10,12]);
+  new Structures.Cross(window.grid, [-3,-3]);
   new Structures.KoksGalaxy(window.grid, [49,49]);
   new Structures.Glider(window.grid, [34,5]);
 
   setInterval(function() {
     window.grid.cycle(window.ctx);
-  }, 200);
+  }, 250);
 
   // window.grid.render(window.ctx);
 

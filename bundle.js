@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Grid = __webpack_require__(1);
-	var Structures = __webpack_require__(6);
+	var Structures = __webpack_require__(3);
 	
 	document.addEventListener('DOMContentLoaded', function() {
 	  window.canvasEl = document.getElementById('canvas');
@@ -55,13 +55,13 @@
 	
 	  new Structures.Block(window.grid, [22,22]);
 	  new Structures.Blinker(window.grid, [39,42]);
-	  new Structures.Cross(window.grid, [10,12]);
+	  new Structures.Cross(window.grid, [-3,-3]);
 	  new Structures.KoksGalaxy(window.grid, [49,49]);
 	  new Structures.Glider(window.grid, [34,5]);
 	
 	  setInterval(function() {
 	    window.grid.cycle(window.ctx);
-	  }, 200);
+	  }, 250);
 	
 	  // window.grid.render(window.ctx);
 	
@@ -78,8 +78,8 @@
 	var Grid = function(numRows, numCols) {
 	  this.numRows = numRows;
 	  this.numCols = numCols;
-	
-	  this.generate();
+	  this.neighborCounts = {};
+	  this.livingCells = new Set;
 	};
 	
 	Grid.NEIGHBOR_DELTAS = [
@@ -93,38 +93,40 @@
 	  [ 1,  1]
 	];
 	
-	Grid.prototype.generate = function () {
-	  this.grid = [];
-	
-	  for (var row = 0; row < this.numRows; row++) {
-	    this.grid[row] = [];
-	
-	    for (var col = 0; col < this.numCols; col++) {
-	      var cell = new Cell(col, row);
-	
-	      this.grid[row][col] = cell;
-	    }
-	  }
-	};
-	
 	Grid.prototype.toggleCells = function (ctx) {
 	  var self = this;
 	
-	  this.grid.forEach(function(row, rowNum) {
-	    row.forEach(function(cell, colNum) {
-	      var liveNeighborCount = self.liveNeighborCount(rowNum, colNum);
+	  this.livingCells.forEach(function(posKey){
+	    var pos = posKey.split(','),
+	        row = parseInt(pos[0]),
+	        col = parseInt(pos[1]);
 	
-	      cell.receiveLiveNeighborCount(liveNeighborCount);
-	    });
+	    self.incrementNeighbors(row, col);
 	  });
+	
+	  var newSet = new Set;
+	
+	  Object.keys(this.neighborCounts).forEach(function(posKey){
+	    var neighborCount = self.neighborCounts[posKey];
+	
+	    if (neighborCount === 2 && self.livingCells.has(posKey)) {
+	      newSet.add(posKey);
+	    }
+	    if (neighborCount === 3) { newSet.add(posKey); }
+	  });
+	
+	  this.livingCells = newSet;
+	  this.neighborCounts = {};
 	};
 	
 	Grid.prototype.render = function (ctx) {
-	  this.grid.forEach(function(row) {
-	    row.forEach(function(cell) {
-	      cell.render(ctx);
-	    });
-	  });
+	  for (var row = 0; row < this.numRows; row++) {
+	    for (var col = 0; col < this.numCols; col++) {
+	      var alive = this.livingCells.has(row + ',' + col);
+	
+	      new Cell(row, col, alive).render(ctx);
+	    }
+	  }
 	};
 	
 	Grid.prototype.cycle = function (ctx) {
@@ -132,31 +134,24 @@
 	  this.render(ctx);
 	};
 	
-	Grid.prototype.liveNeighborCount = function (row, col) {
-	  var count = 0;
+	Grid.prototype.incrementNeighbors = function (row, col) {
 	  var self = this;
 	
 	  Grid.NEIGHBOR_DELTAS.forEach(function(delta) {
 	    var x = delta[0] + row,
-	        y = delta[1] + col;
+	        y = delta[1] + col,
+	        posKey = [x,y].join(',');
 	
-	    if (self.grid[x] && self.grid[x][y] && self.grid[x][y].alive) {
-	      count += 1;
-	    }
+	    self.neighborCounts[posKey] = self.neighborCounts[posKey] || 0;
+	    self.neighborCounts[posKey] += 1;
 	  });
-	
-	  return count;
-	};
-	
-	Grid.prototype.accessCell = function (row, col) {
-	  return this.grid[row][col];
 	};
 	
 	Grid.prototype.awakenCells = function (cells) {
 	  var self = this;
 	
 	  cells.forEach(function(cellPos) {
-	    self.grid[cellPos[1]][cellPos[0]].alive = true;
+	    self.livingCells.add(cellPos.join(','));
 	  });
 	};
 	
@@ -164,7 +159,7 @@
 	  var self = this;
 	
 	  cells.forEach(function(cellPos) {
-	    self.grid[cellPos[1]][cellPos[0]].alive = false;
+	    self.livingCells.delete(cellPos.join(','));
 	  });
 	};
 	
@@ -175,27 +170,24 @@
 /* 2 */
 /***/ function(module, exports) {
 
-	var Cell = function(xPos, yPos) {
+	var Cell = function(row, col, alive) {
 	  this.height = 10;
 	  this.width = 10;
 	
-	  this.xPos = xPos;
-	  this.yPos = yPos;
+	  this.row = row;
+	  this.col = col;
 	
-	  this.alive = false;
-	  this.shouldToggle = false;
+	  this.alive = alive;
 	};
 	
 	Cell.prototype.render = function (ctx) {
-	  if (this.shouldToggle) { this.toggle(); }
-	
 	  var color = this.alive ? 'black' : 'yellow';
 	
 	  ctx.fillStyle = color;
 	
 	  ctx.fillRect(
-	    this.xPos * this.width,
-	    this.yPos * this.height,
+	    this.row * this.width,
+	    this.col * this.height,
 	    this.width,
 	    this.height
 	  );
@@ -203,27 +195,11 @@
 	  ctx.strokeStyle = "gray";
 	  ctx.lineWidth   = 1;
 	  ctx.strokeRect(
-	    this.xPos * this.width,
-	    this.yPos * this.height,
+	    this.row * this.width,
+	    this.col * this.height,
 	    this.width,
 	    this.height
 	  );
-	
-	};
-	
-	Cell.prototype.receiveLiveNeighborCount = function (liveNeighborCount) {
-	  if (this.alive) {
-	    if (liveNeighborCount < 2 || liveNeighborCount > 3) {
-	      this.shouldToggle = true;
-	    }
-	  } else {
-	    if (liveNeighborCount === 3) { this.shouldToggle = true; }
-	  }
-	};
-	
-	Cell.prototype.toggle = function () {
-	  this.shouldToggle = false;
-	  this.alive = this.alive ? false : true;
 	};
 	
 	module.exports = Cell;
@@ -233,8 +209,29 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(4),
-	    Util = __webpack_require__(5);
+	var Block = __webpack_require__(4),
+	    Blinker = __webpack_require__(7),
+	    Cross = __webpack_require__(8),
+	    KoksGalaxy = __webpack_require__(9),
+	    Glider = __webpack_require__(10);
+	
+	var Structures = {
+	  Block: Block,
+	  Blinker: Blinker,
+	  Cross: Cross,
+	  KoksGalaxy: KoksGalaxy,
+	  Glider: Glider
+	};
+	
+	module.exports = Structures;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(5),
+	    Util = __webpack_require__(6);
 	
 	var Block = function(grid, startPos) {
 	  Structure.call(this, Block.OPTIONS);
@@ -259,7 +256,7 @@
 
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports) {
 
 	var Structure = function(options, grid, startPos) {
@@ -294,7 +291,7 @@
 
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	var Util = {
@@ -310,32 +307,11 @@
 
 
 /***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Block = __webpack_require__(3),
-	    Blinker = __webpack_require__(7),
-	    Cross = __webpack_require__(8),
-	    KoksGalaxy = __webpack_require__(9),
-	    Glider = __webpack_require__(10);
-	
-	var Structures = {
-	  Block: Block,
-	  Blinker: Blinker,
-	  Cross: Cross,
-	  KoksGalaxy: KoksGalaxy,
-	  Glider: Glider
-	};
-	
-	module.exports = Structures;
-
-
-/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(4),
-	    Util = __webpack_require__(5);
+	var Structure = __webpack_require__(5),
+	    Util = __webpack_require__(6);
 	
 	var Blinker = function(grid, startPos) {
 	  Structure.call(this, Blinker.OPTIONS);
@@ -362,8 +338,8 @@
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(4),
-	    Util = __webpack_require__(5);
+	var Structure = __webpack_require__(5),
+	    Util = __webpack_require__(6);
 	
 	var Cross = function(grid, startPos) {
 	  Structure.call(this, Cross.OPTIONS);
@@ -415,8 +391,8 @@
 /* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(4),
-	    Util = __webpack_require__(5);
+	var Structure = __webpack_require__(5),
+	    Util = __webpack_require__(6);
 	
 	var KoksGalaxy = function(grid, startPos) {
 	  Structure.call(this, KoksGalaxy.OPTIONS);
@@ -492,8 +468,8 @@
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(4),
-	    Util = __webpack_require__(5);
+	var Structure = __webpack_require__(5),
+	    Util = __webpack_require__(6);
 	
 	var Glider = function(grid, startPos) {
 	  Structure.call(this, Glider.OPTIONS);
