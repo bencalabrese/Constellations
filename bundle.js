@@ -53,17 +53,17 @@
 	  window.grid = new Grid(80, 80);
 	  window.Structures = Structures;
 	
-	  new Structures.Block(window.grid, [22,22]);
-	  new Structures.Blinker(window.grid, [39,42]);
-	  new Structures.Cross(window.grid, [-3,-3]);
-	  new Structures.KoksGalaxy(window.grid, [49,49]);
-	  new Structures.Glider(window.grid, [34,5]);
+	  // new Structures.Block(window.grid, [22,22]);
+	  // new Structures.Blinker(window.grid, [39,42]);
+	  // new Structures.Cross(window.grid, [-3,-3]);
+	  // new Structures.KoksGalaxy(window.grid, [49,49]);
+	  // new Structures.Glider(window.grid, [34,5]);
 	
-	  setInterval(function() {
-	    window.grid.cycle(window.ctx);
-	  }, 250);
+	  // setInterval(function() {
+	  //   window.grid.cycle(window.ctx);
+	  // }, 250);
 	
-	  // window.grid.render(window.ctx);
+	  window.grid.render(window.ctx);
 	
 	
 	});
@@ -233,8 +233,8 @@
 	var Structure = __webpack_require__(5),
 	    Util = __webpack_require__(6);
 	
-	var Block = function(grid, startPos) {
-	  Structure.call(this, Block.OPTIONS);
+	var Block = function(grid, startPos, rotationCount) {
+	  Structure.call(this, Block.OPTIONS, rotationCount);
 	
 	  this.render(grid, startPos);
 	};
@@ -259,13 +259,16 @@
 /* 5 */
 /***/ function(module, exports) {
 
-	var Structure = function(options, grid, startPos) {
+	var Structure = function(options, rotationCount) {
 	  this.height = options.height;
 	  this.width = options.width;
 	  this.liveCellDeltas = options.liveCellDeltas;
+	
+	  this.rotationCount = rotationCount || 0;
 	};
 	
 	Structure.prototype.render = function (grid, startPos) {
+	  this.rotate();
 	  this.clearArea(grid, startPos);
 	
 	  var positions = this.liveCellDeltas.map(function(delta){
@@ -285,6 +288,24 @@
 	  }
 	
 	  grid.killCells(targetCells);
+	};
+	
+	Structure.prototype.rotate = function () {
+	  for (var i = 0; i < this.rotationCount % 4; i++) {
+	    this.rotateNinetyDegrees();
+	  }
+	};
+	
+	Structure.prototype.rotateNinetyDegrees = function () {
+	  var temp = this.height;
+	  this.height = this.width;
+	  this.width = temp;
+	
+	  var offset = this.height - 1;
+	
+	  this.liveCellDeltas = this.liveCellDeltas.map(function(delta){
+	    return [delta[1], (delta[0] * -1) + offset];
+	  });
 	};
 	
 	module.exports = Structure;
@@ -313,8 +334,8 @@
 	var Structure = __webpack_require__(5),
 	    Util = __webpack_require__(6);
 	
-	var Blinker = function(grid, startPos) {
-	  Structure.call(this, Blinker.OPTIONS);
+	var Blinker = function(grid, startPos, rotationCount) {
+	  Structure.call(this, Blinker.OPTIONS, rotationCount);
 	
 	  this.render(grid, startPos);
 	};
@@ -341,8 +362,8 @@
 	var Structure = __webpack_require__(5),
 	    Util = __webpack_require__(6);
 	
-	var Cross = function(grid, startPos) {
-	  Structure.call(this, Cross.OPTIONS);
+	var Cross = function(grid, startPos, rotationCount) {
+	  Structure.call(this, Cross.OPTIONS, rotationCount);
 	
 	  this.render(grid, startPos);
 	};
@@ -394,8 +415,8 @@
 	var Structure = __webpack_require__(5),
 	    Util = __webpack_require__(6);
 	
-	var KoksGalaxy = function(grid, startPos) {
-	  Structure.call(this, KoksGalaxy.OPTIONS);
+	var KoksGalaxy = function(grid, startPos, rotationCount) {
+	  Structure.call(this, KoksGalaxy.OPTIONS, rotationCount);
 	
 	  this.render(grid, startPos);
 	};
@@ -471,8 +492,8 @@
 	var Structure = __webpack_require__(5),
 	    Util = __webpack_require__(6);
 	
-	var Glider = function(grid, startPos) {
-	  Structure.call(this, Glider.OPTIONS);
+	var Glider = function(grid, startPos, rotationCount) {
+	  Structure.call(this, Glider.OPTIONS, rotationCount);
 	
 	  this.render(grid, startPos);
 	};
