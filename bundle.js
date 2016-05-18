@@ -45,25 +45,28 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Grid = __webpack_require__(1);
+	var Viewport = __webpack_require__(11);
 	var Structures = __webpack_require__(3);
 	
 	document.addEventListener('DOMContentLoaded', function() {
 	  window.canvasEl = document.getElementById('canvas');
 	  window.ctx = window.canvasEl.getContext('2d');
 	  window.grid = new Grid(80, 80);
+	  window.viewport = new Viewport(window.grid, window.ctx);
 	  window.Structures = Structures;
 	
-	  // new Structures.Block(window.grid, [22,22]);
-	  // new Structures.Blinker(window.grid, [39,42]);
-	  // new Structures.Cross(window.grid, [-3,-3]);
-	  // new Structures.KoksGalaxy(window.grid, [49,49]);
-	  // new Structures.Glider(window.grid, [34,5]);
+	  new Structures.Block(window.grid, [22,22]);
+	  new Structures.Blinker(window.grid, [39,42]);
+	  new Structures.Cross(window.grid, [-3,-3]);
+	  new Structures.KoksGalaxy(window.grid, [49,49]);
+	  new Structures.Glider(window.grid, [34,5]);
 	
-	  // setInterval(function() {
-	  //   window.grid.cycle(window.ctx);
-	  // }, 250);
+	  setInterval(function() {
+	    window.grid.toggleCells();
+	    window.viewport.render();
+	  }, 250);
 	
-	  window.grid.render(window.ctx);
+	  // window.grid.render(window.ctx);
 	
 	
 	});
@@ -71,10 +74,8 @@
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Cell = __webpack_require__(2);
-	
 	var Grid = function(numRows, numCols) {
 	  this.numRows = numRows;
 	  this.numCols = numCols;
@@ -117,21 +118,6 @@
 	
 	  this.livingCells = newSet;
 	  this.neighborCounts = {};
-	};
-	
-	Grid.prototype.render = function (ctx) {
-	  for (var row = 0; row < this.numRows; row++) {
-	    for (var col = 0; col < this.numCols; col++) {
-	      var alive = this.livingCells.has(row + ',' + col);
-	
-	      new Cell(row, col, alive).render(ctx);
-	    }
-	  }
-	};
-	
-	Grid.prototype.cycle = function (ctx) {
-	  this.toggleCells();
-	  this.render(ctx);
 	};
 	
 	Grid.prototype.incrementNeighbors = function (row, col) {
@@ -513,6 +499,31 @@
 	};
 	
 	module.exports = Glider;
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Cell = __webpack_require__(2);
+	
+	var Viewport = function(grid, ctx) {
+	  this.grid = grid;
+	  this.ctx = ctx;
+	  this.displaySize = 80;
+	};
+	
+	Viewport.prototype.render = function () {
+	  for (var row = 0; row < this.displaySize; row++) {
+	    for (var col = 0; col < this.displaySize; col++) {
+	      var alive = this.grid.livingCells.has(row + ',' + col);
+	
+	      new Cell(row, col, alive).render(this.ctx);
+	    }
+	  }
+	};
+	
+	module.exports = Viewport;
 
 
 /***/ }
