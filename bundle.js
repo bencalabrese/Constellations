@@ -44,30 +44,23 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Grid = __webpack_require__(1);
-	var Viewport = __webpack_require__(11);
-	var Structures = __webpack_require__(3);
+	var Game = __webpack_require__(13);
 	
 	document.addEventListener('DOMContentLoaded', function() {
-	  window.canvasEl = document.getElementById('canvas');
-	  window.ctx = window.canvasEl.getContext('2d');
-	  window.grid = new Grid(80, 80);
-	  window.viewport = new Viewport(window.grid, window.ctx);
-	  window.Structures = Structures;
-	  //
-	  // new Structures.Block(window.grid, [22,22]);
-	  // new Structures.Blinker(window.grid, [39,42]);
-	  // new Structures.Cross(window.grid, [-3,-3]);
-	  // new Structures.KoksGalaxy(window.grid, [49,49]);
-	  // new Structures.Glider(window.grid, [34,5]);
-	  new Structures.RPentomino(window.grid, [40, 40]);
+	  var canvasEl = document.getElementById('canvas');
+	  var ctx = canvasEl.getContext('2d');
+	  window.game = new Game(ctx);
 	
-	  setInterval(function() {
-	    window.grid.toggleCells();
-	    window.viewport.render();
-	  }, 100);
+	  // window.game.addStructure('Block', [22,22]);
+	  // window.game.addStructure('Cross', [-3,-3]);
+	  // window.game.addStructure('Blinker', [39,42]);
+	  // window.game.addStructure('KoksGalaxy', [49,49]);
+	  // window.game.addStructure('Glider', [34,5]);
+	  window.game.addStructure('RPentomino', [40,40]);
 	
-	  // window.viewport.render(window.ctx);
+	  // window.game.render();
+	
+	  window.game.play();
 	});
 
 
@@ -75,9 +68,7 @@
 /* 1 */
 /***/ function(module, exports) {
 
-	var Grid = function(numRows, numCols) {
-	  this.numRows = numRows;
-	  this.numCols = numCols;
+	var Grid = function() {
 	  this.neighborCounts = {};
 	  this.livingCells = new Set;
 	};
@@ -148,6 +139,10 @@
 	  });
 	};
 	
+	Grid.prototype.alive = function (pos) {
+	  return this.livingCells.has(pos.join(','));
+	};
+	
 	module.exports = Grid;
 
 
@@ -156,8 +151,6 @@
 /***/ function(module, exports) {
 
 	var Cell = function(row, col) {
-	  this.height = 10;
-	  this.width = 10;
 	  this.size = 10;
 	
 	  this.row = row;
@@ -166,52 +159,60 @@
 	  this.alive = false;
 	};
 	
-	Cell.prototype.render = function (ctx) {
+	Cell.prototype.renderChecker = function (ctx) {
 	  var color = this.alive ? 'black' : 'yellow';
 	
 	  ctx.fillStyle = color;
 	
 	  ctx.fillRect(
-	    this.row * this.width,
-	    this.col * this.height,
-	    this.width,
-	    this.height
+	    this.row * this.size,
+	    this.col * this.size,
+	    this.size,
+	    this.size
 	  );
 	
 	  ctx.strokeStyle = "gray";
 	  ctx.lineWidth   = 1;
 	  ctx.strokeRect(
-	    this.row * this.width,
-	    this.col * this.height,
-	    this.width,
-	    this.height
+	    this.row * this.size,
+	    this.col * this.size,
+	    this.size,
+	    this.size
 	  );
 	};
 	
-	Cell.prototype.renderOrb = function (ctx) {
-	  ctx.fillStyle = 'black';
+	Cell.prototype.renderOrb = function (ctx, percentage) {
+	  if (percentage > 1 || this.transitioning) { percentage = 1; }
 	
-	  ctx.fillRect(
-	    this.row * this.width,
-	    this.col * this.height,
-	    this.width,
-	    this.height
+	  var transitionModifier = this.alive ? percentage : 1 - percentage;
+	
+	  var displayRadius = this.size / 2 * transitionModifier;
+	  var alpha = transitionModifier;
+	
+	  var radius = this.size / 2;
+	  var xPos = this.row * this.size + (radius);
+	  var yPos = this.col * this.size + (radius);
+	
+	  var gradient = ctx.createRadialGradient(
+	    xPos,
+	    yPos,
+	    displayRadius,
+	    xPos,
+	    yPos,
+	    0
 	  );
+	  gradient.addColorStop(0, "black");
+	  gradient.addColorStop(1, "rgba(8, 146, 208, " + alpha + ")");
 	
-	  if (this.alive) {
-	    var radius = this.size / 2;
-	    var xPos = this.row * this.size + (radius);
-	    var yPos = this.col * this.size + (radius);
+	  ctx.beginPath();
+	  ctx.arc(xPos, yPos, radius, 0, 2*Math.PI);
+	  ctx.fillStyle = gradient;
+	  ctx.fill();
+	};
 	
-	    var grd = ctx.createRadialGradient(xPos, yPos, radius, xPos, yPos, 0);
-	    grd.addColorStop(0, "black");
-	    grd.addColorStop(1, "rgba(8, 146, 208, 1)");
-	
-	    ctx.beginPath();
-	    ctx.arc(xPos, yPos, radius, 0, 2*Math.PI);
-	    ctx.fillStyle = grd;
-	    ctx.fill();
-	  }
+	Cell.prototype.receiveLiveState = function (liveState) {
+	  this.transitioning = liveState === this.alive;
+	  this.alive = liveState;
 	};
 	
 	module.exports = Cell;
@@ -553,19 +554,29 @@
 	  }
 	};
 	
-	Viewport.prototype.render = function () {
-	  // this.clear();
+	Viewport.prototype.render = function (percentage) {
+	  this.clear();
 	
 	  this.cells.forEach(function(cell){
-	    cell.alive = this.grid.livingCells.has(cell.row + ',' + cell.col);
-	    cell.renderOrb(this.ctx);
-	  });
+	    cell.renderOrb(this.ctx, percentage);
+	  }.bind(this));
 	};
-	//
-	// Viewport.prototype.clear = function () {
-	//   this.ctx.fillStyle = 'black';
-	//   this.ctx.fill();
-	// };
+	
+	Viewport.prototype.clear = function () {
+	  var width = this.ctx.canvas.width,
+	      height = this.ctx.canvas.height;
+	
+	  this.ctx.fillStyle = 'black';
+	  this.ctx.fillRect(0, 0, width, height);
+	};
+	
+	Viewport.prototype.setCellStates = function () {
+	  this.cells.forEach(function(cell){
+	    var liveState = this.grid.alive([cell.row, cell.col]);
+	
+	    cell.receiveLiveState(liveState);
+	  }.bind(this));
+	};
 	
 	
 	module.exports = Viewport;
@@ -599,6 +610,53 @@
 	};
 	
 	module.exports = RPentomino;
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Grid = __webpack_require__(1);
+	var Viewport = __webpack_require__(11);
+	var Structures = __webpack_require__(3);
+	
+	var Game = function(ctx) {
+	  this.ctx = ctx;
+	  this.grid = new Grid();
+	  this.viewport = new Viewport(this.grid, this.ctx);
+	
+	  this.speed = 800;
+	};
+	
+	Game.prototype.render = function () {
+	  this.viewport.render(1);
+	};
+	
+	Game.prototype.play = function () {
+	  var cycleStart = new Date().getTime();
+	
+	  setInterval(function() {
+	    var currentTime = new Date().getTime() - cycleStart;
+	    var percentage = currentTime / this.speed;
+	
+	    if (percentage >= 1) {
+	      percentage %= 1;
+	      cycleStart += this.speed;
+	
+	      this.grid.toggleCells();
+	      this.viewport.setCellStates();
+	    }
+	
+	    this.viewport.render(percentage);
+	  }.bind(this), 10);
+	};
+	
+	Game.prototype.addStructure = function (structureName, pos, rotation) {
+	  new Structures[structureName](this.grid, pos, rotation);
+	};
+	
+	
+	module.exports = Game;
 
 
 /***/ }
