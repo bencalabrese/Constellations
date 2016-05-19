@@ -54,21 +54,20 @@
 	  window.grid = new Grid(80, 80);
 	  window.viewport = new Viewport(window.grid, window.ctx);
 	  window.Structures = Structures;
-	
-	  new Structures.Block(window.grid, [22,22]);
-	  new Structures.Blinker(window.grid, [39,42]);
-	  new Structures.Cross(window.grid, [-3,-3]);
-	  new Structures.KoksGalaxy(window.grid, [49,49]);
-	  new Structures.Glider(window.grid, [34,5]);
+	  //
+	  // new Structures.Block(window.grid, [22,22]);
+	  // new Structures.Blinker(window.grid, [39,42]);
+	  // new Structures.Cross(window.grid, [-3,-3]);
+	  // new Structures.KoksGalaxy(window.grid, [49,49]);
+	  // new Structures.Glider(window.grid, [34,5]);
+	  new Structures.RPentomino(window.grid, [40, 40]);
 	
 	  setInterval(function() {
 	    window.grid.toggleCells();
 	    window.viewport.render();
-	  }, 250);
+	  }, 100);
 	
-	  // window.grid.render(window.ctx);
-	
-	
+	  // window.viewport.render(window.ctx);
 	});
 
 
@@ -156,7 +155,7 @@
 /* 2 */
 /***/ function(module, exports) {
 
-	var Cell = function(row, col, alive) {
+	var Cell = function(row, col) {
 	  this.height = 10;
 	  this.width = 10;
 	  this.size = 10;
@@ -164,7 +163,7 @@
 	  this.row = row;
 	  this.col = col;
 	
-	  this.alive = alive;
+	  this.alive = false;
 	};
 	
 	Cell.prototype.render = function (ctx) {
@@ -190,28 +189,28 @@
 	};
 	
 	Cell.prototype.renderOrb = function (ctx) {
+	  ctx.fillStyle = 'black';
+	
+	  ctx.fillRect(
+	    this.row * this.width,
+	    this.col * this.height,
+	    this.width,
+	    this.height
+	  );
+	
 	  if (this.alive) {
 	    var radius = this.size / 2;
 	    var xPos = this.row * this.size + (radius);
 	    var yPos = this.col * this.size + (radius);
 	
 	    var grd = ctx.createRadialGradient(xPos, yPos, radius, xPos, yPos, 0);
-	    grd.addColorStop(0, "white");
-	    grd.addColorStop(1, "rgba(0, 0, 200, 0.8)");
+	    grd.addColorStop(0, "black");
+	    grd.addColorStop(1, "rgba(8, 146, 208, 1)");
 	
 	    ctx.beginPath();
 	    ctx.arc(xPos, yPos, radius, 0, 2*Math.PI);
 	    ctx.fillStyle = grd;
 	    ctx.fill();
-	  } else {
-	    ctx.fillStyle = 'white';
-	
-	    ctx.fillRect(
-	      this.row * this.width,
-	      this.col * this.height,
-	      this.width,
-	      this.height
-	    );
 	  }
 	};
 	
@@ -226,14 +225,16 @@
 	    Blinker = __webpack_require__(7),
 	    Cross = __webpack_require__(8),
 	    KoksGalaxy = __webpack_require__(9),
-	    Glider = __webpack_require__(10);
+	    Glider = __webpack_require__(10),
+	    RPentomino = __webpack_require__(12);
 	
 	var Structures = {
 	  Block: Block,
 	  Blinker: Blinker,
 	  Cross: Cross,
 	  KoksGalaxy: KoksGalaxy,
-	  Glider: Glider
+	  Glider: Glider,
+	  RPentomino: RPentomino
 	};
 	
 	module.exports = Structures;
@@ -537,20 +538,67 @@
 	var Viewport = function(grid, ctx) {
 	  this.grid = grid;
 	  this.ctx = ctx;
+	
 	  this.displaySize = 80;
+	  this.cells = [];
+	
+	  this.generateCells();
 	};
 	
-	Viewport.prototype.render = function () {
+	Viewport.prototype.generateCells = function () {
 	  for (var row = 0; row < this.displaySize; row++) {
 	    for (var col = 0; col < this.displaySize; col++) {
-	      var alive = this.grid.livingCells.has(row + ',' + col);
-	
-	      new Cell(row, col, alive).renderOrb(this.ctx);
+	      this.cells.push(new Cell(row, col));
 	    }
 	  }
 	};
 	
+	Viewport.prototype.render = function () {
+	  // this.clear();
+	
+	  this.cells.forEach(function(cell){
+	    cell.alive = this.grid.livingCells.has(cell.row + ',' + cell.col);
+	    cell.renderOrb(this.ctx);
+	  });
+	};
+	//
+	// Viewport.prototype.clear = function () {
+	//   this.ctx.fillStyle = 'black';
+	//   this.ctx.fill();
+	// };
+	
+	
 	module.exports = Viewport;
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(5),
+	    Util = __webpack_require__(6);
+	
+	var RPentomino = function(grid, startPos, rotationCount) {
+	  Structure.call(this, RPentomino.OPTIONS, rotationCount);
+	
+	  this.render(grid, startPos);
+	};
+	
+	Util.inherits(RPentomino, Structure);
+	
+	RPentomino.OPTIONS = {
+	  height: 5,
+	  width : 5,
+	  liveCellDeltas : [
+	    [1, 2],
+	    [1, 3],
+	    [2, 1],
+	    [2, 2],
+	    [3, 2]
+	  ]
+	};
+	
+	module.exports = RPentomino;
 
 
 /***/ }

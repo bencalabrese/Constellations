@@ -8,19 +8,18 @@ document.addEventListener('DOMContentLoaded', function() {
   window.grid = new Grid(80, 80);
   window.viewport = new Viewport(window.grid, window.ctx);
   window.Structures = Structures;
-
-  new Structures.Block(window.grid, [22,22]);
-  new Structures.Blinker(window.grid, [39,42]);
-  new Structures.Cross(window.grid, [-3,-3]);
-  new Structures.KoksGalaxy(window.grid, [49,49]);
-  new Structures.Glider(window.grid, [34,5]);
+  //
+  // new Structures.Block(window.grid, [22,22]);
+  // new Structures.Blinker(window.grid, [39,42]);
+  // new Structures.Cross(window.grid, [-3,-3]);
+  // new Structures.KoksGalaxy(window.grid, [49,49]);
+  // new Structures.Glider(window.grid, [34,5]);
+  new Structures.RPentomino(window.grid, [40, 40]);
 
   setInterval(function() {
     window.grid.toggleCells();
     window.viewport.render();
-  }, 250);
+  }, 100);
 
-  // window.grid.render(window.ctx);
-
-
+  // window.viewport.render(window.ctx);
 });
