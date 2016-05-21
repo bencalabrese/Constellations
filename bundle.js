@@ -56,7 +56,7 @@
 	  // window.game.addStructure('Blinker', [39,42]);
 	  // window.game.addStructure('KoksGalaxy', [49,49]);
 	  // window.game.addStructure('Glider', [34,5]);
-	  window.game.addStructure('RPentomino', [20,20]);
+	  window.game.addStructure('RPentomino', [100,100]);
 	});
 
 
@@ -210,7 +210,7 @@
 	  this.grid = grid;
 	  this.ctx = ctx;
 	
-	  this.displaySize = 80;
+	  this.displaySize = 200;
 	  this.cells = [];
 	
 	  this.generateCells();
@@ -228,7 +228,9 @@
 	  this.clear();
 	
 	  this.cells.forEach(function(cell){
-	    cell.renderOrb(this.ctx, percentage);
+	    if (cell.alive || cell.transitioning) {
+	      cell.renderOrb(this.ctx, percentage);
+	    }
 	  }.bind(this));
 	};
 	
@@ -256,7 +258,7 @@
 /***/ function(module, exports) {
 
 	var Cell = function(row, col) {
-	  this.size = 10;
+	  this.size = 4;
 	
 	  this.row = row;
 	  this.col = col;
