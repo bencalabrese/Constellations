@@ -10,9 +10,5 @@ document.addEventListener('DOMContentLoaded', function() {
   // window.game.addStructure('Blinker', [39,42]);
   // window.game.addStructure('KoksGalaxy', [49,49]);
   // window.game.addStructure('Glider', [34,5]);
-  window.game.addStructure('RPentomino', [40,40]);
-
-  // window.game.render();
-
-  window.game.play();
+  window.game.addStructure('RPentomino', [20,20]);
 });

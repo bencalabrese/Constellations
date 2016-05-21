@@ -44,7 +44,7 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Game = __webpack_require__(13);
+	var Game = __webpack_require__(1);
 	
 	document.addEventListener('DOMContentLoaded', function() {
 	  var canvasEl = document.getElementById('canvas');
@@ -56,16 +56,70 @@
 	  // window.game.addStructure('Blinker', [39,42]);
 	  // window.game.addStructure('KoksGalaxy', [49,49]);
 	  // window.game.addStructure('Glider', [34,5]);
-	  window.game.addStructure('RPentomino', [40,40]);
-	
-	  // window.game.render();
-	
-	  window.game.play();
+	  window.game.addStructure('RPentomino', [20,20]);
 	});
 
 
 /***/ },
 /* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Grid = __webpack_require__(2);
+	var Viewport = __webpack_require__(3);
+	var Structures = __webpack_require__(5);
+	
+	var Game = function(ctx) {
+	  this.ctx = ctx;
+	  this.grid = new Grid();
+	  this.viewport = new Viewport(this.grid, this.ctx);
+	
+	  this.playing = false;
+	  this.speed = 1000;
+	
+	  this.cycle();
+	};
+	
+	Game.prototype.cycle = function () {
+	  var cycleStart = new Date().getTime();
+	
+	  this.render(cycleStart);
+	};
+	
+	Game.prototype.render = function (cycleStart) {
+	  var currentTime = new Date().getTime() - cycleStart;
+	  var percentage = currentTime / this.speed;
+	
+	  if (percentage >= 1) {
+	    percentage %= 1;
+	    cycleStart += this.speed;
+	
+	    if (this.playing) { this.grid.toggleCells(); }
+	
+	    this.viewport.setCellStates();
+	  }
+	
+	  this.viewport.render(percentage);
+	
+	  requestAnimationFrame(this.render.bind(this, cycleStart));
+	};
+	
+	Game.prototype.togglePlayState = function () {
+	  this.playing = !this.playing;
+	};
+	
+	Game.prototype.setSpeed = function (newSpeed) {
+	  this.speed = newSpeed;
+	};
+	
+	Game.prototype.addStructure = function (structureName, pos, rotation) {
+	  new Structures[structureName](this.grid, pos, rotation);
+	};
+	
+	module.exports = Game;
+
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	var Grid = function() {
@@ -147,7 +201,58 @@
 
 
 /***/ },
-/* 2 */
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Cell = __webpack_require__(4);
+	
+	var Viewport = function(grid, ctx) {
+	  this.grid = grid;
+	  this.ctx = ctx;
+	
+	  this.displaySize = 80;
+	  this.cells = [];
+	
+	  this.generateCells();
+	};
+	
+	Viewport.prototype.generateCells = function () {
+	  for (var row = 0; row < this.displaySize; row++) {
+	    for (var col = 0; col < this.displaySize; col++) {
+	      this.cells.push(new Cell(row, col));
+	    }
+	  }
+	};
+	
+	Viewport.prototype.render = function (percentage) {
+	  this.clear();
+	
+	  this.cells.forEach(function(cell){
+	    cell.renderOrb(this.ctx, percentage);
+	  }.bind(this));
+	};
+	
+	Viewport.prototype.clear = function () {
+	  var width = this.ctx.canvas.width,
+	      height = this.ctx.canvas.height;
+	
+	  this.ctx.fillStyle = 'black';
+	  this.ctx.fillRect(0, 0, width, height);
+	};
+	
+	Viewport.prototype.setCellStates = function () {
+	  this.cells.forEach(function(cell){
+	    var liveState = this.grid.alive([cell.row, cell.col]);
+	
+	    cell.receiveLiveState(liveState);
+	  }.bind(this));
+	};
+	
+	module.exports = Viewport;
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports) {
 
 	var Cell = function(row, col) {
@@ -182,7 +287,7 @@
 	};
 	
 	Cell.prototype.renderOrb = function (ctx, percentage) {
-	  if (percentage > 1 || this.transitioning) { percentage = 1; }
+	  if (percentage > 1 || !this.transitioning) { percentage = 1; }
 	
 	  var transitionModifier = this.alive ? percentage : 1 - percentage;
 	
@@ -211,7 +316,7 @@
 	};
 	
 	Cell.prototype.receiveLiveState = function (liveState) {
-	  this.transitioning = liveState === this.alive;
+	  this.transitioning = liveState !== this.alive;
 	  this.alive = liveState;
 	};
 	
@@ -219,15 +324,15 @@
 
 
 /***/ },
-/* 3 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Block = __webpack_require__(4),
-	    Blinker = __webpack_require__(7),
-	    Cross = __webpack_require__(8),
-	    KoksGalaxy = __webpack_require__(9),
-	    Glider = __webpack_require__(10),
-	    RPentomino = __webpack_require__(12);
+	var Block = __webpack_require__(6),
+	    Blinker = __webpack_require__(9),
+	    Cross = __webpack_require__(10),
+	    KoksGalaxy = __webpack_require__(11),
+	    Glider = __webpack_require__(12),
+	    RPentomino = __webpack_require__(13);
 	
 	var Structures = {
 	  Block: Block,
@@ -242,11 +347,11 @@
 
 
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(5),
-	    Util = __webpack_require__(6);
+	var Structure = __webpack_require__(7),
+	    Util = __webpack_require__(8);
 	
 	var Block = function(grid, startPos, rotationCount) {
 	  Structure.call(this, Block.OPTIONS, rotationCount);
@@ -271,7 +376,7 @@
 
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports) {
 
 	var Structure = function(options, rotationCount) {
@@ -327,7 +432,7 @@
 
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports) {
 
 	var Util = {
@@ -343,11 +448,11 @@
 
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(5),
-	    Util = __webpack_require__(6);
+	var Structure = __webpack_require__(7),
+	    Util = __webpack_require__(8);
 	
 	var Blinker = function(grid, startPos, rotationCount) {
 	  Structure.call(this, Blinker.OPTIONS, rotationCount);
@@ -371,11 +476,11 @@
 
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(5),
-	    Util = __webpack_require__(6);
+	var Structure = __webpack_require__(7),
+	    Util = __webpack_require__(8);
 	
 	var Cross = function(grid, startPos, rotationCount) {
 	  Structure.call(this, Cross.OPTIONS, rotationCount);
@@ -424,11 +529,11 @@
 
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(5),
-	    Util = __webpack_require__(6);
+	var Structure = __webpack_require__(7),
+	    Util = __webpack_require__(8);
 	
 	var KoksGalaxy = function(grid, startPos, rotationCount) {
 	  Structure.call(this, KoksGalaxy.OPTIONS, rotationCount);
@@ -501,11 +606,11 @@
 
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Structure = __webpack_require__(5),
-	    Util = __webpack_require__(6);
+	var Structure = __webpack_require__(7),
+	    Util = __webpack_require__(8);
 	
 	var Glider = function(grid, startPos, rotationCount) {
 	  Structure.call(this, Glider.OPTIONS, rotationCount);
@@ -531,63 +636,11 @@
 
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Cell = __webpack_require__(2);
-	
-	var Viewport = function(grid, ctx) {
-	  this.grid = grid;
-	  this.ctx = ctx;
-	
-	  this.displaySize = 80;
-	  this.cells = [];
-	
-	  this.generateCells();
-	};
-	
-	Viewport.prototype.generateCells = function () {
-	  for (var row = 0; row < this.displaySize; row++) {
-	    for (var col = 0; col < this.displaySize; col++) {
-	      this.cells.push(new Cell(row, col));
-	    }
-	  }
-	};
-	
-	Viewport.prototype.render = function (percentage) {
-	  this.clear();
-	
-	  this.cells.forEach(function(cell){
-	    cell.renderOrb(this.ctx, percentage);
-	  }.bind(this));
-	};
-	
-	Viewport.prototype.clear = function () {
-	  var width = this.ctx.canvas.width,
-	      height = this.ctx.canvas.height;
-	
-	  this.ctx.fillStyle = 'black';
-	  this.ctx.fillRect(0, 0, width, height);
-	};
-	
-	Viewport.prototype.setCellStates = function () {
-	  this.cells.forEach(function(cell){
-	    var liveState = this.grid.alive([cell.row, cell.col]);
-	
-	    cell.receiveLiveState(liveState);
-	  }.bind(this));
-	};
-	
-	
-	module.exports = Viewport;
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Structure = __webpack_require__(5),
-	    Util = __webpack_require__(6);
+	var Structure = __webpack_require__(7),
+	    Util = __webpack_require__(8);
 	
 	var RPentomino = function(grid, startPos, rotationCount) {
 	  Structure.call(this, RPentomino.OPTIONS, rotationCount);
@@ -610,53 +663,6 @@
 	};
 	
 	module.exports = RPentomino;
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Grid = __webpack_require__(1);
-	var Viewport = __webpack_require__(11);
-	var Structures = __webpack_require__(3);
-	
-	var Game = function(ctx) {
-	  this.ctx = ctx;
-	  this.grid = new Grid();
-	  this.viewport = new Viewport(this.grid, this.ctx);
-	
-	  this.speed = 800;
-	};
-	
-	Game.prototype.render = function () {
-	  this.viewport.render(1);
-	};
-	
-	Game.prototype.play = function () {
-	  var cycleStart = new Date().getTime();
-	
-	  setInterval(function() {
-	    var currentTime = new Date().getTime() - cycleStart;
-	    var percentage = currentTime / this.speed;
-	
-	    if (percentage >= 1) {
-	      percentage %= 1;
-	      cycleStart += this.speed;
-	
-	      this.grid.toggleCells();
-	      this.viewport.setCellStates();
-	    }
-	
-	    this.viewport.render(percentage);
-	  }.bind(this), 10);
-	};
-	
-	Game.prototype.addStructure = function (structureName, pos, rotation) {
-	  new Structures[structureName](this.grid, pos, rotation);
-	};
-	
-	
-	module.exports = Game;
 
 
 /***/ }
