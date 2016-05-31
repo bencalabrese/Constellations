@@ -165,32 +165,26 @@
 	};
 	
 	Grid.prototype.incrementNeighbors = function (row, col) {
-	  var self = this;
-	
 	  Grid.NEIGHBOR_DELTAS.forEach(function(delta) {
 	    var x = delta[0] + row,
 	        y = delta[1] + col,
 	        posKey = [x,y].join(',');
 	
-	    self.neighborCounts[posKey] = self.neighborCounts[posKey] || 0;
-	    self.neighborCounts[posKey] += 1;
-	  });
+	    this.neighborCounts[posKey] = this.neighborCounts[posKey] || 0;
+	    this.neighborCounts[posKey] += 1;
+	  }.bind(this));
 	};
 	
 	Grid.prototype.awakenCells = function (cells) {
-	  var self = this;
-	
 	  cells.forEach(function(cellPos) {
-	    self.livingCells.add(cellPos.join(','));
-	  });
+	    this.livingCells.add(cellPos.join(','));
+	  }.bind(this));
 	};
 	
 	Grid.prototype.killCells = function (cells) {
-	  var self = this;
-	
 	  cells.forEach(function(cellPos) {
-	    self.livingCells.delete(cellPos.join(','));
-	  });
+	    this.livingCells.delete(cellPos.join(','));
+	  }.bind(this));
 	};
 	
 	Grid.prototype.alive = function (pos) {
@@ -210,7 +204,7 @@
 	  this.grid = grid;
 	  this.ctx = ctx;
 	
-	  this.displaySize = 200;
+	  this.displaySize = 80;
 	  this.cells = [];
 	
 	  this.generateCells();
@@ -258,7 +252,7 @@
 /***/ function(module, exports) {
 
 	var Cell = function(row, col) {
-	  this.size = 4;
+	  this.size = 10;
 	
 	  this.row = row;
 	  this.col = col;
@@ -338,7 +332,8 @@
 	  RPentomino: __webpack_require__(13),
 	  GosperGliderGun: __webpack_require__(14),
 	  Halfmax: __webpack_require__(15),
-	  BreederOne: __webpack_require__(16)
+	  BreederOne: __webpack_require__(16),
+	  BackrakeOne: __webpack_require__(17)
 	};
 	
 	module.exports = Structures;
@@ -5736,6 +5731,119 @@
 	};
 	
 	module.exports = BreederOne;
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structure = __webpack_require__(7),
+	    Util = __webpack_require__(8);
+	
+	var BackrakeOne = function(grid, startPos, rotationCount) {
+	  Structure.call(this, BackrakeOne.OPTIONS, rotationCount);
+	
+	  this.render(grid, startPos);
+	};
+	
+	Util.inherits(BackrakeOne, Structure);
+	
+	BackrakeOne.OPTIONS = {
+	  height: 19,
+	  width: 28,
+	  liveCellDeltas: [
+	    [6, 1],
+	    [7, 1],
+	    [8, 1],
+	    [20, 1],
+	    [21, 1],
+	    [22, 1],
+	    [5, 2],
+	    [9, 2],
+	    [19, 2],
+	    [23, 2],
+	    [4, 3],
+	    [5, 3],
+	    [10, 3],
+	    [18, 3],
+	    [23, 3],
+	    [24, 3],
+	    [3, 4],
+	    [5, 4],
+	    [7, 4],
+	    [8, 4],
+	    [10, 4],
+	    [11, 4],
+	    [17, 4],
+	    [18, 4],
+	    [20, 4],
+	    [21, 4],
+	    [23, 4],
+	    [25, 4],
+	    [2, 5],
+	    [3, 5],
+	    [5, 5],
+	    [10, 5],
+	    [12, 5],
+	    [13, 5],
+	    [15, 5],
+	    [16, 5],
+	    [18, 5],
+	    [23, 5],
+	    [25, 5],
+	    [26, 5],
+	    [1, 6],
+	    [6, 6],
+	    [10, 6],
+	    [13, 6],
+	    [15, 6],
+	    [18, 6],
+	    [22, 6],
+	    [27, 6],
+	    [13, 7],
+	    [15, 7],
+	    [1, 8],
+	    [2, 8],
+	    [10, 8],
+	    [11, 8],
+	    [13, 8],
+	    [15, 8],
+	    [17, 8],
+	    [18, 8],
+	    [26, 8],
+	    [27, 8],
+	    [13, 9],
+	    [15, 9],
+	    [7, 10],
+	    [8, 10],
+	    [9, 10],
+	    [19, 10],
+	    [20, 10],
+	    [21, 10],
+	    [7, 11],
+	    [11, 11],
+	    [21, 11],
+	    [7, 12],
+	    [9, 12],
+	    [14, 12],
+	    [15, 12],
+	    [16, 12],
+	    [13, 13],
+	    [16, 13],
+	    [21, 13],
+	    [22, 13],
+	    [16, 14],
+	    [12, 15],
+	    [16, 15],
+	    [12, 16],
+	    [16, 16],
+	    [16, 17],
+	    [13, 18],
+	    [15, 18]
+	  ]
+	};
+	
+	module.exports = BackrakeOne;
 
 
 /***/ }
