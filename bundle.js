@@ -54,11 +54,11 @@
 	
 	  bindControlPanel(window.game);
 	
-	  window.game.addStructure('Block', [22,22]);
-	  window.game.addStructure('Cross', [-3,-3]);
-	  window.game.addStructure('Blinker', [39,42]);
-	  window.game.addStructure('KoksGalaxy', [49,49]);
-	  window.game.addStructure('Glider', [34,5]);
+	  window.game.addStructure('Block', [-18,-18]);
+	  window.game.addStructure('Cross', [-43,-43]);
+	  window.game.addStructure('Blinker', [-1,2]);
+	  window.game.addStructure('KoksGalaxy', [9,9]);
+	  window.game.addStructure('Glider', [-6,-35]);
 	  // window.game.addStructure('RPentomino', [100,100]);
 	});
 
@@ -207,15 +207,16 @@
 	  this.grid = grid;
 	  this.ctx = ctx;
 	
-	  this.displaySize = 80;
+	  // this.displaySize = 80;
+	  ctx.translate(400,400);
 	  this.cells = [];
 	
 	  this.generateCells();
 	};
 	
 	Viewport.prototype.generateCells = function () {
-	  for (var row = 0; row < this.displaySize; row++) {
-	    for (var col = 0; col < this.displaySize; col++) {
+	  for (var row = -100; row < 100; row++) {
+	    for (var col = -100; col < 100; col++) {
 	      this.cells.push(new Cell(row, col));
 	    }
 	  }
@@ -236,7 +237,7 @@
 	      height = this.ctx.canvas.height;
 	
 	  this.ctx.fillStyle = 'black';
-	  this.ctx.fillRect(0, 0, width, height);
+	  this.ctx.fillRect(width / -2, height / -2, width, height);
 	};
 	
 	Viewport.prototype.setCellStates = function () {

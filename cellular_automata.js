@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   bindControlPanel(window.game);
 
-  window.game.addStructure('Block', [22,22]);
-  window.game.addStructure('Cross', [-3,-3]);
-  window.game.addStructure('Blinker', [39,42]);
-  window.game.addStructure('KoksGalaxy', [49,49]);
-  window.game.addStructure('Glider', [34,5]);
+  window.game.addStructure('Block', [-18,-18]);
+  window.game.addStructure('Cross', [-43,-43]);
+  window.game.addStructure('Blinker', [-1,2]);
+  window.game.addStructure('KoksGalaxy', [9,9]);
+  window.game.addStructure('Glider', [-6,-35]);
   // window.game.addStructure('RPentomino', [100,100]);
 });
