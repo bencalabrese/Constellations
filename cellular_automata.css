@@ -10,10 +10,16 @@ canvas {
 
 nav {
   padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav * {
+  margin: 0 7px;
 }
 
 #speed-slider {
   display: inline-block;
   width: 200px;
-  margin: 0 20px;
 }
