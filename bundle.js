@@ -44,18 +44,21 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Game = __webpack_require__(1);
+	var Game = __webpack_require__(1),
+	    bindControlPanel = __webpack_require__(18);
 	
 	document.addEventListener('DOMContentLoaded', function() {
 	  var canvasEl = document.getElementById('canvas');
 	  var ctx = canvasEl.getContext('2d');
 	  window.game = new Game(ctx);
 	
-	  // window.game.addStructure('Block', [22,22]);
-	  // window.game.addStructure('Cross', [-3,-3]);
-	  // window.game.addStructure('Blinker', [39,42]);
-	  // window.game.addStructure('KoksGalaxy', [49,49]);
-	  // window.game.addStructure('Glider', [34,5]);
+	  bindControlPanel(window.game);
+	
+	  window.game.addStructure('Block', [22,22]);
+	  window.game.addStructure('Cross', [-3,-3]);
+	  window.game.addStructure('Blinker', [39,42]);
+	  window.game.addStructure('KoksGalaxy', [49,49]);
+	  window.game.addStructure('Glider', [34,5]);
 	  // window.game.addStructure('RPentomino', [100,100]);
 	});
 
@@ -5844,6 +5847,32 @@
 	};
 	
 	module.exports = BackrakeOne;
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	var bindControlPanel = function(game) {
+	  $('#play-button').click(function(event) {
+	    game.togglePlayState();
+	
+	    $(event.currentTarget).text(function(){
+	      return game.playing ? "Pause" : "Play";
+	    });
+	  });
+	
+	  $('#speed-slider').slider({
+	    min: -100,
+	    max: 450,
+	    value: 0,
+	    slide: function(event, ui) {
+	      game.setSpeed(1000 / Math.pow(2, ui.value / 100));
+	    }
+	  });
+	};
+	
+	module.exports = bindControlPanel;
 
 
 /***/ }
