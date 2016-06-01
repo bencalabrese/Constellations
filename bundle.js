@@ -45,20 +45,20 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindControlPanel = __webpack_require__(18);
+	    bindListeners = __webpack_require__(19);
 	
 	document.addEventListener('DOMContentLoaded', function() {
 	  var canvasEl = document.getElementById('canvas');
 	  var ctx = canvasEl.getContext('2d');
 	  window.game = new Game(ctx);
 	
-	  bindControlPanel(window.game);
+	  bindListeners(window.game);
 	
-	  window.game.addStructure('Block', [-18,-18]);
-	  window.game.addStructure('Cross', [-43,-43]);
-	  window.game.addStructure('Blinker', [-1,2]);
-	  window.game.addStructure('KoksGalaxy', [9,9]);
-	  window.game.addStructure('Glider', [-6,-35]);
+	  window.game.addStructure('Block', [22,22]);
+	  window.game.addStructure('Cross', [-3,-3]);
+	  window.game.addStructure('Blinker', [39,42]);
+	  window.game.addStructure('KoksGalaxy', [49,49]);
+	  window.game.addStructure('Glider', [34,5]);
 	  // window.game.addStructure('RPentomino', [100,100]);
 	});
 
@@ -116,6 +116,17 @@
 	
 	Game.prototype.setSpeed = function (newSpeed) {
 	  this.speed = newSpeed;
+	};
+	
+	Game.prototype.highlightCells = function (mousePos) {
+	  var data = {
+	    x: mousePos[0],
+	    y: mousePos[1],
+	    width: 1,
+	    height: 1
+	  };
+	
+	  this.viewport.setHighlightData(data);
 	};
 	
 	Game.prototype.addStructure = function (structureName, pos, rotation) {
@@ -214,13 +225,13 @@
 	
 	  this.cells = [];
 	
-	  ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+	  // ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
 	  this.generateCells();
 	};
 	
 	Viewport.prototype.generateCells = function () {
-	  for (var row = -100; row < 100; row++) {
-	    for (var col = -100; col < 100; col++) {
+	  for (var row = 0; row < 200; row++) {
+	    for (var col = 0; col < 200; col++) {
 	      this.cells.push(new Cell(row, col));
 	    }
 	  }
@@ -235,36 +246,47 @@
 	    }
 	  }.bind(this));
 	
+	  if (this.highlightData) { this.highlightCells(); }
 	  if (this.gridlines) { this.addGridlines(); }
 	};
 	
 	Viewport.prototype.clear = function () {
-	  var width = this.ctx.canvas.width * 2.5,
-	      height = this.ctx.canvas.height * 2.5;
+	  var width = this.ctx.canvas.width,
+	      height = this.ctx.canvas.height;
 	
 	  this.ctx.fillStyle = 'black';
-	  this.ctx.fillRect(width / -2, height / -2, width, height);
+	  this.ctx.fillRect(0, 0, width, height);
 	};
 	
 	Viewport.prototype.addGridlines = function () {
 	  this.ctx.strokeStyle = "gray";
 	  this.ctx.lineWidth = 0.25;
 	
-	  for(var i = -100; i < 100; i++) {
+	  for(var i = 0; i < 200; i++) {
 	    this.ctx.strokeRect(
-	      -100 * 10,
+	      0,
 	      i * 10,
-	      this.ctx.canvas.width * 2.5,
+	      this.ctx.canvas.width,
 	      10
 	    );
 	
 	    this.ctx.strokeRect(
 	      i * 10,
-	      -100 * 10,
+	      0,
 	      10,
-	      this.ctx.canvas.height * 2.5
+	      this.ctx.canvas.height
 	    );
 	  }
+	};
+	
+	Viewport.prototype.highlightCells = function () {
+	  this.ctx.fillStyle = 'yellow';
+	  this.ctx.fillRect(
+	    this.highlightData.x,
+	    this.highlightData.y,
+	    this.highlightData.width * 10,
+	    this.highlightData.height * 10
+	  );
 	};
 	
 	Viewport.prototype.toggleGridlines = function () {
@@ -277,6 +299,10 @@
 	
 	    cell.receiveLiveState(liveState);
 	  }.bind(this));
+	};
+	
+	Viewport.prototype.setHighlightData = function (data) {
+	  this.highlightData = data;
 	};
 	
 	module.exports = Viewport;
@@ -5882,10 +5908,11 @@
 
 
 /***/ },
-/* 18 */
+/* 18 */,
+/* 19 */
 /***/ function(module, exports) {
 
-	var bindControlPanel = function(game) {
+	var bindListeners = function(game) {
 	  $('#play-button').click(function(event) {
 	    game.togglePlayState();
 	
@@ -5904,9 +5931,22 @@
 	      game.setSpeed(1000 / Math.pow(2, ui.value / 100));
 	    }
 	  });
+	
+	  $('#canvas').mousemove(function(event) {
+	    var msg = "Handler for .mousemove() called at ";
+	
+	    var canvas = event.currentTarget,
+	        x = event.pageX - canvas.offsetLeft,
+	        y = event.pageY - canvas.offsetTop;
+	
+	    msg += x + ", " + y;
+	    console.log( "<div>" + msg + "</div>" );
+	
+	    game.highlightCells([x,y]);
+	  });
 	};
 	
-	module.exports = bindControlPanel;
+	module.exports = bindListeners;
 
 
 /***/ }
