@@ -110,6 +110,10 @@
 	  this.playing = !this.playing;
 	};
 	
+	Game.prototype.toggleGridlines = function () {
+	  this.viewport.toggleGridlines();
+	};
+	
 	Game.prototype.setSpeed = function (newSpeed) {
 	  this.speed = newSpeed;
 	};
@@ -206,11 +210,11 @@
 	var Viewport = function(grid, ctx) {
 	  this.grid = grid;
 	  this.ctx = ctx;
+	  this.gridlines = false;
 	
-	  // this.displaySize = 80;
-	  ctx.translate(400,400);
 	  this.cells = [];
 	
+	  ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
 	  this.generateCells();
 	};
 	
@@ -230,14 +234,41 @@
 	      cell.renderOrb(this.ctx, percentage);
 	    }
 	  }.bind(this));
+	
+	  if (this.gridlines) { this.addGridlines(); }
 	};
 	
 	Viewport.prototype.clear = function () {
-	  var width = this.ctx.canvas.width,
-	      height = this.ctx.canvas.height;
+	  var width = this.ctx.canvas.width * 2.5,
+	      height = this.ctx.canvas.height * 2.5;
 	
 	  this.ctx.fillStyle = 'black';
 	  this.ctx.fillRect(width / -2, height / -2, width, height);
+	};
+	
+	Viewport.prototype.addGridlines = function () {
+	  this.ctx.strokeStyle = "gray";
+	  this.ctx.lineWidth = 0.25;
+	
+	  for(var i = -100; i < 100; i++) {
+	    this.ctx.strokeRect(
+	      -100 * 10,
+	      i * 10,
+	      this.ctx.canvas.width * 2.5,
+	      10
+	    );
+	
+	    this.ctx.strokeRect(
+	      i * 10,
+	      -100 * 10,
+	      10,
+	      this.ctx.canvas.height * 2.5
+	    );
+	  }
+	};
+	
+	Viewport.prototype.toggleGridlines = function () {
+	  this.gridlines = this.gridlines ? false : true;
 	};
 	
 	Viewport.prototype.setCellStates = function () {
@@ -5862,6 +5893,8 @@
 	      return game.playing ? "Pause" : "Play";
 	    });
 	  });
+	
+	  $('#gridlines-button').click(game.toggleGridlines.bind(game));
 	
 	  $('#speed-slider').slider({
 	    min: -100,
