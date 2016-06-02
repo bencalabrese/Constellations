@@ -164,6 +164,10 @@
 	  this.selectedStructure = structure;
 	};
 	
+	Game.prototype.clearGrid = function () {
+	  this.grid.clear();
+	};
+	
 	module.exports = Game;
 
 
@@ -238,6 +242,10 @@
 	
 	Grid.prototype.alive = function (pos) {
 	  return this.livingCells.has(pos.join(','));
+	};
+	
+	Grid.prototype.clear = function () {
+	  this.livingCells = new Set;
 	};
 	
 	module.exports = Grid;
@@ -315,6 +323,7 @@
 	  this.ctx.strokeStyle = "gray";
 	  this.ctx.lineWidth = 0.125;
 	  this.ctx.stroke();
+	  this.ctx.strokeStyle = "black";
 	};
 	
 	Viewport.prototype.highlightCells = function () {
@@ -5843,6 +5852,8 @@
 	  });
 	
 	  $('#gridlines-button').click(game.toggleGridlines.bind(game));
+	
+	  $('#clear-button').click(game.clearGrid.bind(game));
 	
 	  $('#speed-slider').slider({
 	    min: -100,
