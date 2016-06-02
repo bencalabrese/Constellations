@@ -1,17 +1,21 @@
 var Game = require('./lib/game'),
-    bindListeners = require('./lib/listeners');
+    bindListeners = require('./lib/listeners'),
+    Structure = require('./lib/structures/structure'),
+    Structures = require('./lib/structures/structures');
 
-document.addEventListener('DOMContentLoaded', function() {
+$(function() {
   var canvasEl = document.getElementById('canvas');
   var ctx = canvasEl.getContext('2d');
   window.game = new Game(ctx);
+  window.Structures = Structures;
+  window.Structure = Structure;
 
   bindListeners(window.game);
 
-  window.game.addStructure('Block', [-18,-18]);
-  window.game.addStructure('Cross', [-43,-43]);
-  window.game.addStructure('Blinker', [-1,2]);
-  window.game.addStructure('KoksGalaxy', [9,9]);
-  window.game.addStructure('Glider', [-6,-35]);
-  // window.game.addStructure('RPentomino', [100,100]);
+  window.game.addStructure(new Structure(Structures.Block), [-18,-18]);
+  window.game.addStructure(new Structure(Structures.Cross), [-43,-43]);
+  window.game.addStructure(new Structure(Structures.Blinker), [-1,2]);
+  window.game.addStructure(new Structure(Structures.KoksGalaxy), [9,9]);
+  window.game.addStructure(new Structure(Structures.Glider), [-6,-35]);
+  // window.game.addStructure(new Structure(Structures.RPentomino), [100,100]);
 });

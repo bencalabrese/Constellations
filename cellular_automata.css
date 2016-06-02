@@ -17,3 +17,7 @@ nav * {
   display: inline-block;
   width: 200px;
 }
+
+canvas:hover {
+  cursor: none;
+}

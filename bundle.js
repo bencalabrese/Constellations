@@ -45,21 +45,25 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(19);
+	    bindListeners = __webpack_require__(19),
+	    Structure = __webpack_require__(7),
+	    Structures = __webpack_require__(5);
 	
-	document.addEventListener('DOMContentLoaded', function() {
+	$(function() {
 	  var canvasEl = document.getElementById('canvas');
 	  var ctx = canvasEl.getContext('2d');
 	  window.game = new Game(ctx);
+	  window.Structures = Structures;
+	  window.Structure = Structure;
 	
 	  bindListeners(window.game);
 	
-	  window.game.addStructure('Block', [-18,-18]);
-	  window.game.addStructure('Cross', [-43,-43]);
-	  window.game.addStructure('Blinker', [-1,2]);
-	  window.game.addStructure('KoksGalaxy', [9,9]);
-	  window.game.addStructure('Glider', [-6,-35]);
-	  // window.game.addStructure('RPentomino', [100,100]);
+	  window.game.addStructure(new Structure(Structures.Block), [-18,-18]);
+	  window.game.addStructure(new Structure(Structures.Cross), [-43,-43]);
+	  window.game.addStructure(new Structure(Structures.Blinker), [-1,2]);
+	  window.game.addStructure(new Structure(Structures.KoksGalaxy), [9,9]);
+	  window.game.addStructure(new Structure(Structures.Glider), [-6,-35]);
+	  // window.game.addStructure(new Structure(Structures.RPentomino), [100,100]);
 	});
 
 
@@ -67,14 +71,16 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Grid = __webpack_require__(2);
-	var Viewport = __webpack_require__(3);
-	var Structures = __webpack_require__(5);
+	var Grid = __webpack_require__(2),
+	    Viewport = __webpack_require__(3),
+	    Structure = __webpack_require__(7),
+	    Structures = __webpack_require__(5);
 	
 	var Game = function(ctx) {
 	  this.ctx = ctx;
 	  this.grid = new Grid();
 	  this.viewport = new Viewport(this.grid, this.ctx);
+	  this.selectedStructure = new Structure (Structures.SingleCell);
 	
 	  this.playing = false;
 	  this.speed = 1000;
@@ -98,7 +104,7 @@
 	
 	    if (this.playing) { this.grid.toggleCells(); }
 	
-	    this.viewport.setCellStates();
+	    this.viewport.setAllCellStates();
 	  }
 	
 	  this.viewport.render(percentage);
@@ -125,15 +131,37 @@
 	Game.prototype.highlightCells = function (mousePos) {
 	  var data = {
 	    mousePos: mousePos,
-	    width: 1,
-	    height: 1
+	    width: this.selectedStructure.width,
+	    height: this.selectedStructure.height
 	  };
 	
 	  this.viewport.setHighlightData(data);
 	};
 	
-	Game.prototype.addStructure = function (structureName, pos, rotation) {
-	  new Structures[structureName](this.grid, pos, rotation);
+	Game.prototype.clearHighlightData = function () {
+	  this.viewport.setHighlightData(null);
+	};
+	
+	Game.prototype.addStructure = function (structure, startPos) {
+	  structure.awaken(this.grid, startPos);
+	
+	  var posKeys = structure.targetCells(startPos).map(function(pos) {
+	    return pos.join(',');
+	  });
+	
+	  this.viewport.setCellStates(posKeys);
+	};
+	
+	Game.prototype.addSelectedStructure = function (mousePos) {
+	  var pos = this.viewport.calculateGridPos(mousePos);
+	
+	  this.addStructure(this.selectedStructure, pos);
+	
+	  this.selectedStructure = new Structure(Structures.SingleCell);
+	};
+	
+	Game.prototype.setSelectedStructure = function (structure) {
+	  this.selectedStructure = structure;
 	};
 	
 	module.exports = Game;
@@ -227,15 +255,15 @@
 	  this.gridlines = false;
 	  this.zoomLevel = 2;
 	
-	  this.cells = [];
+	  this.cells = {};
 	
 	  this.generateCells();
 	};
 	
 	Viewport.prototype.generateCells = function () {
-	  for (var row = -80; row < 160; row++) {
-	    for (var col = -80; col < 160; col++) {
-	      this.cells.push(new Cell(row, col));
+	  for (var row = -80; row < 80; row++) {
+	    for (var col = -80; col < 80; col++) {
+	      this.cells[[row, col].join(',')] = new Cell(row, col);
 	    }
 	  }
 	};
@@ -244,7 +272,9 @@
 	  this.recontextualize();
 	  this.clear();
 	
-	  this.cells.forEach(function(cell){
+	  Object.keys(this.cells).forEach(function(key){
+	    var cell = this.cells[key];
+	
 	    if (cell.transitioning || cell.alive) {
 	      cell.renderOrb(this.ctx, percentage);
 	    }
@@ -292,9 +322,7 @@
 	      row = pos[0],
 	      col = pos[1];
 	
-	  console.log(pos);
-	
-	  this.ctx.fillStyle = 'yellow';
+	  this.ctx.fillStyle = 'rgba(255,255,0,0.2)';
 	  this.ctx.fillRect(
 	    row * 5,
 	    col * 5,
@@ -316,12 +344,18 @@
 	  this.gridlines = this.gridlines ? false : true;
 	};
 	
-	Viewport.prototype.setCellStates = function () {
-	  this.cells.forEach(function(cell){
+	Viewport.prototype.setCellStates = function (posKeys) {
+	  posKeys.forEach(function(key){
+	    var cell = this.cells[key];
+	
 	    var liveState = this.grid.alive([cell.row, cell.col]);
 	
 	    cell.receiveLiveState(liveState);
 	  }.bind(this));
+	};
+	
+	Viewport.prototype.setAllCellStates = function (cell) {
+	  this.setCellStates(Object.keys(this.cells));
 	};
 	
 	Viewport.prototype.setHighlightData = function (data) {
@@ -412,6 +446,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Structures = {
+	  SingleCell: __webpack_require__(20),
 	  Block: __webpack_require__(6),
 	  Blinker: __webpack_require__(9),
 	  Cross: __webpack_require__(10),
@@ -429,20 +464,9 @@
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var Block = function(grid, startPos, rotationCount) {
-	  Structure.call(this, Block.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(Block, Structure);
-	
-	Block.OPTIONS = {
+	module.exports = {
 	  height: 4,
 	  width : 4,
 	  liveCellDeltas : [
@@ -452,8 +476,6 @@
 	    [2,2]
 	  ]
 	};
-	
-	module.exports = Block;
 
 
 /***/ },
@@ -466,10 +488,10 @@
 	  this.liveCellDeltas = options.liveCellDeltas;
 	
 	  this.rotationCount = rotationCount || 0;
+	  this.rotate();
 	};
 	
-	Structure.prototype.render = function (grid, startPos) {
-	  this.rotate();
+	Structure.prototype.awaken = function (grid, startPos) {
 	  this.clearArea(grid, startPos);
 	
 	  var positions = this.liveCellDeltas.map(function(delta){
@@ -480,6 +502,10 @@
 	};
 	
 	Structure.prototype.clearArea = function (grid, startPos) {
+	  grid.killCells(this.targetCells(startPos));
+	};
+	
+	Structure.prototype.targetCells = function (startPos) {
 	  var targetCells = [];
 	
 	  for (var y = 0; y < this.height; y++) {
@@ -488,7 +514,7 @@
 	    }
 	  }
 	
-	  grid.killCells(targetCells);
+	  return targetCells;
 	};
 	
 	Structure.prototype.rotate = function () {
@@ -513,37 +539,11 @@
 
 
 /***/ },
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ function(module, exports) {
 
-	var Util = {
-	  inherits: function (ChildClass, ParentClass) {
-	    function Surrogate () {}
-	    Surrogate.prototype = ParentClass.prototype;
-	    ChildClass.prototype = new Surrogate();
-	    ChildClass.prototype.constructor = ChildClass;
-	  }
-	};
-	
-	module.exports = Util;
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var Blinker = function(grid, startPos, rotationCount) {
-	  Structure.call(this, Blinker.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(Blinker, Structure);
-	
-	Blinker.OPTIONS = {
+	module.exports = {
 	  height: 5,
 	  width : 3,
 	  liveCellDeltas : [
@@ -552,26 +552,13 @@
 	    [1,3]
 	  ]
 	};
-	
-	module.exports = Blinker;
 
 
 /***/ },
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var Cross = function(grid, startPos, rotationCount) {
-	  Structure.call(this, Cross.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(Cross, Structure);
-	
-	Cross.OPTIONS = {
+	module.exports = {
 	  height: 10,
 	  width : 10,
 	  liveCellDeltas : [
@@ -605,26 +592,13 @@
 	    [8, 6]
 	  ]
 	};
-	
-	module.exports = Cross;
 
 
 /***/ },
 /* 11 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var KoksGalaxy = function(grid, startPos, rotationCount) {
-	  Structure.call(this, KoksGalaxy.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(KoksGalaxy, Structure);
-	
-	KoksGalaxy.OPTIONS = {
+	module.exports = {
 	  height: 11,
 	  width : 11,
 	  liveCellDeltas : [
@@ -682,26 +656,13 @@
 	    [9, 2]
 	  ]
 	};
-	
-	module.exports = KoksGalaxy;
 
 
 /***/ },
 /* 12 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var Glider = function(grid, startPos, rotationCount) {
-	  Structure.call(this, Glider.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(Glider, Structure);
-	
-	Glider.OPTIONS = {
+	module.exports = {
 	  height: 5,
 	  width : 5,
 	  liveCellDeltas : [
@@ -712,26 +673,13 @@
 	    [3, 3]
 	  ]
 	};
-	
-	module.exports = Glider;
 
 
 /***/ },
 /* 13 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var RPentomino = function(grid, startPos, rotationCount) {
-	  Structure.call(this, RPentomino.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(RPentomino, Structure);
-	
-	RPentomino.OPTIONS = {
+	module.exports = {
 	  height: 5,
 	  width : 5,
 	  liveCellDeltas : [
@@ -742,26 +690,13 @@
 	    [3, 2]
 	  ]
 	};
-	
-	module.exports = RPentomino;
 
 
 /***/ },
 /* 14 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var GosperGliderGun = function(grid, startPos, rotationCount) {
-	  Structure.call(this, GosperGliderGun.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(GosperGliderGun, Structure);
-	
-	GosperGliderGun.OPTIONS = {
+	module.exports = {
 	  height: 10,
 	  width: 37,
 	  liveCellDeltas: [
@@ -803,26 +738,13 @@
 	    [14, 9]
 	  ]
 	};
-	
-	module.exports = GosperGliderGun;
 
 
 /***/ },
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var Halfmax = function(grid, startPos, rotationCount) {
-	  Structure.call(this, Halfmax.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(Halfmax, Structure);
-	
-	Halfmax.OPTIONS = {
+	module.exports = {
 	  height: 81,
 	  width: 66,
 	  liveCellDeltas: [
@@ -1732,26 +1654,13 @@
 	    [36, 80]
 	  ]
 	};
-	
-	module.exports = Halfmax;
 
 
 /***/ },
 /* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var BreederOne = function(grid, startPos, rotationCount) {
-	  Structure.call(this, BreederOne.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(BreederOne, Structure);
-	
-	BreederOne.OPTIONS = {
+	module.exports = {
 	  height: 339,
 	  width: 750,
 	  liveCellDeltas: [
@@ -5817,26 +5726,13 @@
 	    [410, 338]
 	  ]
 	};
-	
-	module.exports = BreederOne;
 
 
 /***/ },
 /* 17 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var Structure = __webpack_require__(7),
-	    Util = __webpack_require__(8);
-	
-	var BackrakeOne = function(grid, startPos, rotationCount) {
-	  Structure.call(this, BackrakeOne.OPTIONS, rotationCount);
-	
-	  this.render(grid, startPos);
-	};
-	
-	Util.inherits(BackrakeOne, Structure);
-	
-	BackrakeOne.OPTIONS = {
+	module.exports = {
 	  height: 19,
 	  width: 28,
 	  liveCellDeltas: [
@@ -5930,8 +5826,6 @@
 	    [15, 18]
 	  ]
 	};
-	
-	module.exports = BackrakeOne;
 
 
 /***/ },
@@ -5975,9 +5869,32 @@
 	
 	    game.highlightCells([x,y]);
 	  });
+	
+	  $('#canvas').mouseleave(game.clearHighlightData.bind(game));
+	
+	  $('#canvas').click(function(event) {
+	    var canvas = event.currentTarget,
+	        x = event.pageX - canvas.offsetLeft,
+	        y = event.pageY - canvas.offsetTop;
+	
+	    game.addSelectedStructure([x,y]);
+	  });
 	};
 	
 	module.exports = bindListeners;
+
+
+/***/ },
+/* 20 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  height: 1,
+	  width : 1,
+	  liveCellDeltas : [
+	    [0,0],
+	  ]
+	};
 
 
 /***/ }
