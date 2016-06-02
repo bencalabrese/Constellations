@@ -54,11 +54,11 @@
 	
 	  bindListeners(window.game);
 	
-	  window.game.addStructure('Block', [22,22]);
-	  window.game.addStructure('Cross', [-3,-3]);
-	  window.game.addStructure('Blinker', [39,42]);
-	  window.game.addStructure('KoksGalaxy', [49,49]);
-	  window.game.addStructure('Glider', [34,5]);
+	  window.game.addStructure('Block', [-18,-18]);
+	  window.game.addStructure('Cross', [-43,-43]);
+	  window.game.addStructure('Blinker', [-1,2]);
+	  window.game.addStructure('KoksGalaxy', [9,9]);
+	  window.game.addStructure('Glider', [-6,-35]);
 	  // window.game.addStructure('RPentomino', [100,100]);
 	});
 
@@ -275,24 +275,17 @@
 	};
 	
 	Viewport.prototype.addGridlines = function () {
+	  for(var i = -80; i < 80; i++) {
+	    this.ctx.moveTo(this.ctx.canvas.width / -2, i * 5);
+	    this.ctx.lineTo(this.ctx.canvas.width / 2, i * 5);
+	
+	    this.ctx.moveTo(i * 5, this.ctx.canvas.width / -2);
+	    this.ctx.lineTo(i * 5, this.ctx.canvas.width / 2);
+	  }
+	
 	  this.ctx.strokeStyle = "gray";
 	  this.ctx.lineWidth = 0.125;
-	
-	  for(var i = -80; i < 80; i++) {
-	    this.ctx.strokeRect(
-	      this.ctx.canvas.width / -2,
-	      i * 5,
-	      this.ctx.canvas.width,
-	      5
-	    );
-	
-	    this.ctx.strokeRect(
-	      i * 5,
-	      this.ctx.canvas.height / -2,
-	      5,
-	      this.ctx.canvas.height
-	    );
-	  }
+	  this.ctx.stroke();
 	};
 	
 	Viewport.prototype.highlightCells = function () {
