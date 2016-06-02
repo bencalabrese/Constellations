@@ -124,8 +124,7 @@
 	
 	Game.prototype.highlightCells = function (mousePos) {
 	  var data = {
-	    x: mousePos[0],
-	    y: mousePos[1],
+	    mousePos: mousePos,
 	    width: 1,
 	    height: 1
 	  };
@@ -289,13 +288,28 @@
 	};
 	
 	Viewport.prototype.highlightCells = function () {
+	  var pos = this.calculateGridPos(this.highlightData.mousePos),
+	      row = pos[0],
+	      col = pos[1];
+	
+	  console.log(pos);
+	
 	  this.ctx.fillStyle = 'yellow';
 	  this.ctx.fillRect(
-	    (this.highlightData.x + this.ctx.canvas.width / -2)  / this.zoomLevel,
-	    (this.highlightData.y + this.ctx.canvas.height / -2)  / this.zoomLevel,
+	    row * 5,
+	    col * 5,
 	    this.highlightData.width * 5,
 	    this.highlightData.height * 5
 	  );
+	};
+	
+	Viewport.prototype.calculateGridPos = function (mousePos) {
+	  var offsets = [this.ctx.canvas.width / 2, this.ctx.canvas.height / 2];
+	
+	  return mousePos.map(function(dim, idx) {
+	    var offset = dim - offsets[idx];
+	    return Math.floor(offset / 5 / this.zoomLevel);
+	  }.bind(this));
 	};
 	
 	Viewport.prototype.toggleGridlines = function () {
