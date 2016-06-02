@@ -114,6 +114,10 @@
 	  this.viewport.toggleGridlines();
 	};
 	
+	Game.prototype.setZoomLevel = function (newZoom) {
+	  this.viewport.setZoomLevel(newZoom);
+	};
+	
 	Game.prototype.setSpeed = function (newSpeed) {
 	  this.speed = newSpeed;
 	};
@@ -222,22 +226,23 @@
 	  this.grid = grid;
 	  this.ctx = ctx;
 	  this.gridlines = false;
+	  this.zoomLevel = 2;
 	
 	  this.cells = [];
 	
-	  // ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
 	  this.generateCells();
 	};
 	
 	Viewport.prototype.generateCells = function () {
-	  for (var row = 0; row < 200; row++) {
-	    for (var col = 0; col < 200; col++) {
+	  for (var row = -80; row < 160; row++) {
+	    for (var col = -80; col < 160; col++) {
 	      this.cells.push(new Cell(row, col));
 	    }
 	  }
 	};
 	
 	Viewport.prototype.render = function (percentage) {
+	  this.recontextualize();
 	  this.clear();
 	
 	  this.cells.forEach(function(cell){
@@ -250,30 +255,41 @@
 	  if (this.gridlines) { this.addGridlines(); }
 	};
 	
+	Viewport.prototype.recontextualize = function () {
+	  this.ctx.setTransform(
+	    this.zoomLevel,
+	    0,
+	    0,
+	    this.zoomLevel,
+	    this.ctx.canvas.height / 2,
+	    this.ctx.canvas.width / 2
+	  );
+	};
+	
 	Viewport.prototype.clear = function () {
 	  var width = this.ctx.canvas.width,
 	      height = this.ctx.canvas.height;
 	
 	  this.ctx.fillStyle = 'black';
-	  this.ctx.fillRect(0, 0, width, height);
+	  this.ctx.fillRect(width / -2, height / -2, width, height);
 	};
 	
 	Viewport.prototype.addGridlines = function () {
 	  this.ctx.strokeStyle = "gray";
-	  this.ctx.lineWidth = 0.25;
+	  this.ctx.lineWidth = 0.125;
 	
-	  for(var i = 0; i < 200; i++) {
+	  for(var i = -80; i < 80; i++) {
 	    this.ctx.strokeRect(
-	      0,
-	      i * 10,
+	      this.ctx.canvas.width / -2,
+	      i * 5,
 	      this.ctx.canvas.width,
-	      10
+	      5
 	    );
 	
 	    this.ctx.strokeRect(
-	      i * 10,
-	      0,
-	      10,
+	      i * 5,
+	      this.ctx.canvas.height / -2,
+	      5,
 	      this.ctx.canvas.height
 	    );
 	  }
@@ -282,10 +298,10 @@
 	Viewport.prototype.highlightCells = function () {
 	  this.ctx.fillStyle = 'yellow';
 	  this.ctx.fillRect(
-	    this.highlightData.x,
-	    this.highlightData.y,
-	    this.highlightData.width * 10,
-	    this.highlightData.height * 10
+	    (this.highlightData.x + this.ctx.canvas.width / -2)  / this.zoomLevel,
+	    (this.highlightData.y + this.ctx.canvas.height / -2)  / this.zoomLevel,
+	    this.highlightData.width * 5,
+	    this.highlightData.height * 5
 	  );
 	};
 	
@@ -305,6 +321,10 @@
 	  this.highlightData = data;
 	};
 	
+	Viewport.prototype.setZoomLevel = function (level) {
+	  this.zoomLevel = level;
+	};
+	
 	module.exports = Viewport;
 
 
@@ -313,7 +333,7 @@
 /***/ function(module, exports) {
 
 	var Cell = function(row, col) {
-	  this.size = 10;
+	  this.size = 5;
 	
 	  this.row = row;
 	  this.col = col;
@@ -5932,15 +5952,19 @@
 	    }
 	  });
 	
-	  $('#canvas').mousemove(function(event) {
-	    var msg = "Handler for .mousemove() called at ";
+	  $('#zoom-slider').slider({
+	    min: 0,
+	    max: 500,
+	    value: 100,
+	    slide: function(event, ui) {
+	      game.setZoomLevel(Math.pow(2, ui.value / 100));
+	    }
+	  });
 	
+	  $('#canvas').mousemove(function(event) {
 	    var canvas = event.currentTarget,
 	        x = event.pageX - canvas.offsetLeft,
 	        y = event.pageY - canvas.offsetTop;
-	
-	    msg += x + ", " + y;
-	    console.log( "<div>" + msg + "</div>" );
 	
 	    game.highlightCells([x,y]);
 	  });

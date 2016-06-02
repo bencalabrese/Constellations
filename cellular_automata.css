@@ -13,7 +13,7 @@ nav * {
   margin: 0 7px;
 }
 
-#speed-slider {
+#speed-slider, #zoom-slider {
   display: inline-block;
   width: 200px;
 }
