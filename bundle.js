@@ -45,9 +45,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(19),
-	    Structure = __webpack_require__(7),
-	    Structures = __webpack_require__(5);
+	    bindListeners = __webpack_require__(18),
+	    Structure = __webpack_require__(5),
+	    Structures = __webpack_require__(6);
 	
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
@@ -73,8 +73,8 @@
 
 	var Grid = __webpack_require__(2),
 	    Viewport = __webpack_require__(3),
-	    Structure = __webpack_require__(7),
-	    Structures = __webpack_require__(5);
+	    Structure = __webpack_require__(5),
+	    Structures = __webpack_require__(6);
 	
 	var Game = function(ctx) {
 	  this.ctx = ctx;
@@ -312,6 +312,7 @@
 	};
 	
 	Viewport.prototype.addGridlines = function () {
+	  this.ctx.beginPath();
 	  for(var i = -80; i < 80; i++) {
 	    this.ctx.moveTo(this.ctx.canvas.width / -2, i * 5);
 	    this.ctx.lineTo(this.ctx.canvas.width / 2, i * 5);
@@ -323,7 +324,6 @@
 	  this.ctx.strokeStyle = "gray";
 	  this.ctx.lineWidth = 0.125;
 	  this.ctx.stroke();
-	  this.ctx.strokeStyle = "black";
 	};
 	
 	Viewport.prototype.highlightCells = function () {
@@ -452,43 +452,6 @@
 
 /***/ },
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var Structures = {
-	  SingleCell: __webpack_require__(20),
-	  Block: __webpack_require__(6),
-	  Blinker: __webpack_require__(9),
-	  Cross: __webpack_require__(10),
-	  KoksGalaxy: __webpack_require__(11),
-	  Glider: __webpack_require__(12),
-	  RPentomino: __webpack_require__(13),
-	  GosperGliderGun: __webpack_require__(14),
-	  Halfmax: __webpack_require__(15),
-	  BreederOne: __webpack_require__(16),
-	  BackrakeOne: __webpack_require__(17)
-	};
-	
-	module.exports = Structures;
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  height: 4,
-	  width : 4,
-	  liveCellDeltas : [
-	    [1,1],
-	    [1,2],
-	    [2,1],
-	    [2,2]
-	  ]
-	};
-
-
-/***/ },
-/* 7 */
 /***/ function(module, exports) {
 
 	var Structure = function(options, rotationCount) {
@@ -548,7 +511,56 @@
 
 
 /***/ },
-/* 8 */,
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Structures = {
+	  SingleCell: __webpack_require__(7),
+	  Block: __webpack_require__(8),
+	  Blinker: __webpack_require__(9),
+	  Cross: __webpack_require__(10),
+	  KoksGalaxy: __webpack_require__(11),
+	  Glider: __webpack_require__(12),
+	  RPentomino: __webpack_require__(13),
+	  GosperGliderGun: __webpack_require__(14),
+	  Halfmax: __webpack_require__(15),
+	  BreederOne: __webpack_require__(16),
+	  BackrakeOne: __webpack_require__(17)
+	};
+	
+	module.exports = Structures;
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  height: 1,
+	  width : 1,
+	  liveCellDeltas : [
+	    [0,0],
+	  ]
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  height: 4,
+	  width : 4,
+	  liveCellDeltas : [
+	    [1,1],
+	    [1,2],
+	    [2,1],
+	    [2,2]
+	  ]
+	};
+
+
+/***/ },
 /* 9 */
 /***/ function(module, exports) {
 
@@ -5838,8 +5850,7 @@
 
 
 /***/ },
-/* 18 */,
-/* 19 */
+/* 18 */
 /***/ function(module, exports) {
 
 	var bindListeners = function(game) {
@@ -5893,19 +5904,6 @@
 	};
 	
 	module.exports = bindListeners;
-
-
-/***/ },
-/* 20 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  height: 1,
-	  width : 1,
-	  liveCellDeltas : [
-	    [0,0],
-	  ]
-	};
 
 
 /***/ }
