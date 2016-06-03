@@ -45,25 +45,14 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(18),
-	    Structure = __webpack_require__(5),
-	    Structures = __webpack_require__(6);
+	    bindListeners = __webpack_require__(18); 
 	
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
 	  var ctx = canvasEl.getContext('2d');
-	  window.game = new Game(ctx);
-	  window.Structures = Structures;
-	  window.Structure = Structure;
+	  var game = new Game(ctx);
 	
-	  bindListeners(window.game);
-	
-	  window.game.addStructure(new Structure(Structures.Block), [-18,-18]);
-	  window.game.addStructure(new Structure(Structures.Cross), [-43,-43]);
-	  window.game.addStructure(new Structure(Structures.Blinker), [-1,2]);
-	  window.game.addStructure(new Structure(Structures.KoksGalaxy), [9,9]);
-	  window.game.addStructure(new Structure(Structures.Glider), [-6,-35]);
-	  // window.game.addStructure(new Structure(Structures.RPentomino), [100,100]);
+	  bindListeners(game);
 	});
 
 
@@ -156,8 +145,6 @@
 	  var pos = this.viewport.calculateGridPos(mousePos);
 	
 	  this.addStructure(this.selectedStructure, pos);
-	
-	  this.selectedStructure = new Structure(Structures.SingleCell);
 	};
 	
 	Game.prototype.setSelectedStructure = function (structure) {
@@ -516,6 +503,7 @@
 
 	var Structures = {
 	  SingleCell: __webpack_require__(7),
+	  Eraser: __webpack_require__(19),
 	  Block: __webpack_require__(8),
 	  Blinker: __webpack_require__(9),
 	  Cross: __webpack_require__(10),
@@ -536,6 +524,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Single Cell",
 	  height: 1,
 	  width : 1,
 	  liveCellDeltas : [
@@ -549,6 +538,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Block",
 	  height: 4,
 	  width : 4,
 	  liveCellDeltas : [
@@ -565,6 +555,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Blinker",
 	  height: 5,
 	  width : 3,
 	  liveCellDeltas : [
@@ -580,6 +571,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Cross",
 	  height: 10,
 	  width : 10,
 	  liveCellDeltas : [
@@ -620,6 +612,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Kok's Galaxy",
 	  height: 11,
 	  width : 11,
 	  liveCellDeltas : [
@@ -684,6 +677,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Glider",
 	  height: 5,
 	  width : 5,
 	  liveCellDeltas : [
@@ -701,6 +695,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "R Pentomino",
 	  height: 5,
 	  width : 5,
 	  liveCellDeltas : [
@@ -718,6 +713,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Gosper Glider Gun",
 	  height: 10,
 	  width: 37,
 	  liveCellDeltas: [
@@ -766,6 +762,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Halfmax",
 	  height: 81,
 	  width: 66,
 	  liveCellDeltas: [
@@ -1682,6 +1679,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Breeder One",
 	  height: 339,
 	  width: 750,
 	  liveCellDeltas: [
@@ -5754,6 +5752,7 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Backrake One",
 	  height: 19,
 	  width: 28,
 	  liveCellDeltas: [
@@ -5851,8 +5850,11 @@
 
 /***/ },
 /* 18 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
+	var Structure = __webpack_require__(5),
+	    Structures = __webpack_require__(6);
+	
 	var bindListeners = function(game) {
 	  $('#play-button').click(function(event) {
 	    game.togglePlayState();
@@ -5901,9 +5903,37 @@
 	
 	    game.addSelectedStructure([x,y]);
 	  });
+	
+	  Object.keys(Structures).forEach(function(key) {
+	    var structure = Structures[key];
+	    var $li = $("<li>" + structure.name + "</li>");
+	
+	    if (structure.name === "Single Cell") { $li.addClass("selected"); }
+	
+	    $li.click(function(event) {
+	      game.setSelectedStructure(new Structure(structure));
+	
+	      $(event.currentTarget).addClass("selected");
+	      $(event.currentTarget).siblings().removeClass("selected");
+	    });
+	
+	    $('#structures').append($li);
+	  });
 	};
 	
 	module.exports = bindListeners;
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "Eraser",
+	  height: 1,
+	  width : 1,
+	  liveCellDeltas : []
+	};
 
 
 /***/ }

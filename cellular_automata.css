@@ -1,4 +1,4 @@
-body {
+h1 {
   text-align: center;
 }
 
@@ -16,6 +16,32 @@ nav * {
 .slider {
   display: inline-block;
   width: 200px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+ul {
+  height: 800px;
+  width: 200px;
+  background: yellow;
+  margin: 0;
+  overflow-y: scroll;
+}
+
+li {
+  cursor: pointer;
+}
+
+.selected {
+  color: red;
+}
+
+canvas {
+  width: 800px;
+  height: 800px;
 }
 
 canvas:hover {
