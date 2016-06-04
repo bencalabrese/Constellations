@@ -15,8 +15,8 @@ def parse_live_cells(lines)
     end
   end
 
-  height += 2
-  width += 2
+  height += 3
+  width += 3
 
   live_cells.map! { |cell| "    " + cell.to_s }
   deltas = live_cells.join(",\n")
