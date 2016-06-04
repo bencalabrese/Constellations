@@ -378,28 +378,6 @@
 	  this.alive = false;
 	};
 	
-	Cell.prototype.renderChecker = function (ctx) {
-	  var color = this.alive ? 'black' : 'yellow';
-	
-	  ctx.fillStyle = color;
-	
-	  ctx.fillRect(
-	    this.row * this.size,
-	    this.col * this.size,
-	    this.size,
-	    this.size
-	  );
-	
-	  ctx.strokeStyle = "gray";
-	  ctx.lineWidth   = 1;
-	  ctx.strokeRect(
-	    this.row * this.size,
-	    this.col * this.size,
-	    this.size,
-	    this.size
-	  );
-	};
-	
 	Cell.prototype.renderOrb = function (ctx, percentage) {
 	  if (percentage > 1 || !this.transitioning) { percentage = 1; }
 	
