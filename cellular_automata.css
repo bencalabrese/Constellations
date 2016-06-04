@@ -29,14 +29,21 @@ ul {
   background: yellow;
   margin: 0;
   overflow-y: scroll;
+  list-style: none;
+  padding: 0;
+  text-align: center;
 }
 
-li {
+img {
   cursor: pointer;
+  box-sizing: border-box;
+  margin: 10px 0;
+  width: 150px;
+  height: 150px;
 }
 
 .selected {
-  color: red;
+  box-shadow: 0 0 20px teal;
 }
 
 canvas {
