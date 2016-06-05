@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(18); 
+	    bindListeners = __webpack_require__(17); 
 	
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
@@ -247,8 +247,8 @@
 	var Viewport = function(grid, ctx) {
 	  this.grid = grid;
 	  this.ctx = ctx;
-	  this.gridlines = false;
-	  this.zoomLevel = 2;
+	  this.gridlines = true;
+	  this.zoomLevel = 4;
 	
 	  this.cells = {};
 	
@@ -481,17 +481,17 @@
 
 	var Structures = {
 	  SingleCell: __webpack_require__(7),
-	  Eraser: __webpack_require__(19),
-	  Block: __webpack_require__(8),
-	  Blinker: __webpack_require__(9),
-	  Cross: __webpack_require__(10),
-	  KoksGalaxy: __webpack_require__(11),
-	  Glider: __webpack_require__(12),
-	  RPentomino: __webpack_require__(13),
-	  GosperGliderGun: __webpack_require__(14),
+	  Eraser: __webpack_require__(8),
+	  Block: __webpack_require__(9),
+	  Blinker: __webpack_require__(10),
+	  Cross: __webpack_require__(11),
+	  KoksGalaxy: __webpack_require__(12),
+	  Glider: __webpack_require__(13),
+	  RPentomino: __webpack_require__(14),
+	  GosperGliderGun: __webpack_require__(15),
 	  // Halfmax: require('./halfmax'),
 	  // BreederOne: require('./breeder_one'),
-	  BackrakeOne: __webpack_require__(17)
+	  BackrakeOne: __webpack_require__(16)
 	};
 	
 	module.exports = Structures;
@@ -516,6 +516,18 @@
 /***/ function(module, exports) {
 
 	module.exports = {
+	  name: "Eraser",
+	  height: 1,
+	  width : 1,
+	  liveCellDeltas : []
+	};
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	module.exports = {
 	  name: "Block",
 	  imageUrl: "block.png",
 	  height: 4,
@@ -530,7 +542,7 @@
 
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -547,7 +559,7 @@
 
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -589,7 +601,7 @@
 
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -631,7 +643,7 @@
 
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -650,7 +662,7 @@
 
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -669,7 +681,7 @@
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -719,9 +731,7 @@
 
 
 /***/ },
-/* 15 */,
-/* 16 */,
-/* 17 */
+/* 16 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -823,7 +833,7 @@
 
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Structure = __webpack_require__(5),
@@ -854,7 +864,7 @@
 	  $('#zoom-slider').slider({
 	    min: 0,
 	    max: 500,
-	    value: 100,
+	    value: 200,
 	    slide: function(event, ui) {
 	      game.setZoomLevel(Math.pow(2, ui.value / 100));
 	    }
@@ -885,8 +895,8 @@
 	    selectedStructure = structure;
 	    game.setSelectedStructure(new Structure(structure, rotation));
 	
+	    $('.sidebar *').removeClass("selected");
 	    $(event.currentTarget).addClass("selected");
-	    $(event.currentTarget).siblings().removeClass("selected");
 	  }
 	
 	  $('#rotate-button').click(function() {
@@ -910,18 +920,6 @@
 	};
 	
 	module.exports = bindListeners;
-
-
-/***/ },
-/* 19 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "Eraser",
-	  height: 1,
-	  width : 1,
-	  liveCellDeltas : []
-	};
 
 
 /***/ }
