@@ -1,3 +1,8 @@
+body {
+  background: black;
+  color: white;
+}
+
 h1 {
   text-align: center;
 }
@@ -14,7 +19,6 @@ nav * {
 }
 
 .slider {
-  display: inline-block;
   width: 200px;
 }
 
@@ -23,32 +27,40 @@ nav * {
   justify-content: center;
 }
 
-ul {
+.sidebar {
   height: 800px;
   width: 200px;
-  background: yellow;
-  margin: 0;
-  overflow-y: scroll;
-  list-style: none;
-  padding: 0;
   text-align: center;
 }
 
+.buttons {
+  height: 25px;
+}
+
+ul {
+  height: 775px;
+  margin: 0;
+  padding: 0;
+  overflow-y: scroll;
+  list-style: none;
+}
+
 img {
+  border: 1px solid gray;
   cursor: pointer;
-  box-sizing: border-box;
   margin: 10px 0;
   width: 150px;
   height: 150px;
 }
 
 .selected {
-  box-shadow: 0 0 20px teal;
+  box-shadow: 0 0 20px rgba(8, 146, 208, 0.8);
 }
 
 canvas {
   width: 800px;
   height: 800px;
+  border: 1px solid gray;
 }
 
 canvas:hover {
