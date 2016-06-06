@@ -3,7 +3,11 @@ body {
   color: white;
 }
 
-h1 {
+body * {
+  font-family: 'Roboto', sans-serif;
+}
+
+h1, h3 {
   text-align: center;
 }
 
@@ -30,14 +34,15 @@ nav * {
 .sidebar {
   height: 800px;
   width: 200px;
-  text-align: center;
 }
 
 .buttons {
   height: 25px;
+  text-align: center;
 }
 
 ul {
+  text-align: center;
   height: 775px;
   margin: 0;
   padding: 0;
@@ -65,4 +70,8 @@ canvas {
 
 canvas:hover {
   cursor: none;
+}
+
+p {
+  padding-left: 10px;
 }
