@@ -91,9 +91,10 @@
 	    percentage %= 1;
 	    cycleStart += this.speed;
 	
-	    if (this.playing) { this.grid.toggleCells(); }
-	
-	    this.viewport.setAllCellStates();
+	    if (this.playing) {
+	      this.grid.toggleCells();
+	      this.viewport.setCellStates(this.grid.states);
+	    }
 	  }
 	
 	  this.viewport.render(percentage);
@@ -138,7 +139,7 @@
 	    return pos.join(',');
 	  });
 	
-	  this.viewport.setCellStates(posKeys);
+	  this.viewport.setCellStates(this.grid.states);
 	};
 	
 	Game.prototype.addSelectedStructure = function (mousePos) {
@@ -165,6 +166,7 @@
 	var Grid = function() {
 	  this.neighborCounts = {};
 	  this.livingCells = new Set;
+	  this.states = { retained: new Set, awakening: new Set, dying: new Set };
 	};
 	
 	Grid.NEIGHBOR_DELTAS = [
@@ -189,19 +191,34 @@
 	    self.incrementNeighbors(row, col);
 	  });
 	
-	  var newSet = new Set;
+	  var retained = new Set,
+	      awakening = new Set,
+	      dying = new Set,
+	      newLiveSet = new Set;
 	
 	  Object.keys(this.neighborCounts).forEach(function(posKey){
-	    var neighborCount = self.neighborCounts[posKey];
+	    var neighborCount = self.neighborCounts[posKey],
+	        alive = self.livingCells.has(posKey);
 	
-	    if (neighborCount === 2 && self.livingCells.has(posKey)) {
-	      newSet.add(posKey);
+	    if (neighborCount === 2 && alive) {
+	      newLiveSet.add(posKey);
+	      retained.add(posKey);
+	    } else if (neighborCount === 3) {
+	      newLiveSet.add(posKey);
+	      alive ? retained.add(posKey) : awakening.add(posKey);
+	    } else {
+	      if (alive) { dying.add(posKey); }
 	    }
-	    if (neighborCount === 3) { newSet.add(posKey); }
 	  });
 	
-	  this.livingCells = newSet;
+	  this.livingCells = newLiveSet;
 	  this.neighborCounts = {};
+	
+	  this.states = {
+	    retained: retained,
+	    awakening: awakening,
+	    dying: dying
+	  };
 	};
 	
 	Grid.prototype.incrementNeighbors = function (row, col) {
@@ -213,17 +230,27 @@
 	    this.neighborCounts[posKey] = this.neighborCounts[posKey] || 0;
 	    this.neighborCounts[posKey] += 1;
 	  }.bind(this));
+	
+	  var thisPosKey = [row, col].join(',');
+	
+	  this.neighborCounts[thisPosKey] = this.neighborCounts[thisPosKey] || 0;
 	};
 	
 	Grid.prototype.awakenCells = function (cells) {
 	  cells.forEach(function(cellPos) {
-	    this.livingCells.add(cellPos.join(','));
+	    var posKey = cellPos.join(',');
+	    this.livingCells.add(posKey);
+	    this.states.retained.add(posKey);
+	    this.states.dying.delete(posKey);
 	  }.bind(this));
 	};
 	
 	Grid.prototype.killCells = function (cells) {
 	  cells.forEach(function(cellPos) {
-	    this.livingCells.delete(cellPos.join(','));
+	    var posKey = cellPos.join(',');
+	    this.livingCells.delete(posKey);
+	    this.states.retained.delete(posKey);
+	    this.states.awakening.delete(posKey);
 	  }.bind(this));
 	};
 	
@@ -249,31 +276,35 @@
 	  this.ctx = ctx;
 	  this.gridlines = true;
 	  this.zoomLevel = 4;
+	  this.states = { retained: new Set, awakening: new Set, dying: new Set };
 	
-	  this.cells = {};
+	  this.cells = [];
 	
-	  this.generateCells();
+	  // this.generateCells();
 	};
 	
-	Viewport.prototype.generateCells = function () {
-	  for (var row = -80; row < 80; row++) {
-	    for (var col = -80; col < 80; col++) {
-	      this.cells[[row, col].join(',')] = new Cell(row, col);
-	    }
-	  }
-	};
+	// Viewport.prototype.generateCells = function () {
+	//   for (var row = -80; row < 80; row++) {
+	//     for (var col = -80; col < 80; col++) {
+	//       this.cells[[row, col].join(',')] = new Cell(row, col);
+	//     }
+	//   }
+	// };
 	
 	Viewport.prototype.render = function (percentage) {
 	  this.recontextualize();
 	  this.clear();
 	
-	  Object.keys(this.cells).forEach(function(key){
-	    var cell = this.cells[key];
-	
-	    if (cell.transitioning || cell.alive) {
-	      cell.renderOrb(this.ctx, percentage);
-	    }
-	  }.bind(this));
+	  this.cells.forEach(function(cell) {
+	    cell.renderOrb(percentage)
+	  });
+	  // Object.keys(this.cells).forEach(function(key){
+	  //   var cell = this.cells[key];
+	  //
+	  //   if (cell.transitioning || cell.alive) {
+	  //     cell.renderOrb(this.ctx, percentage);
+	  //   }
+	  // }.bind(this));
 	
 	  if (this.highlightData) { this.highlightCells(); }
 	  if (this.gridlines) { this.addGridlines(); }
@@ -340,19 +371,30 @@
 	  this.gridlines = this.gridlines ? false : true;
 	};
 	
-	Viewport.prototype.setCellStates = function (posKeys) {
-	  posKeys.forEach(function(key){
-	    var cell = this.cells[key];
+	Viewport.prototype.setCellStates = function (states) {
+	  this.cells = [];
+	  var self = this;
 	
-	    var liveState = this.grid.alive([cell.row, cell.col]);
+	  Object.keys(states).forEach(function(state) {
+	    states[state].forEach(function(posKey) {
+	      var pos = posKey.split(',').map(function(i) { return parseInt(i); });
 	
-	    cell.receiveLiveState(liveState);
-	  }.bind(this));
+	      self.cells.push(new Cell(...pos, state, self.ctx));
+	    });
+	  });
+	
+	  // posKeys.forEach(function(key){
+	  //   var cell = this.cells[key];
+	  //
+	  //   var liveState = this.grid.alive([cell.row, cell.col]);
+	  //
+	  //   cell.receiveLiveState(liveState);
+	  // }.bind(this));
 	};
 	
-	Viewport.prototype.setAllCellStates = function (cell) {
-	  this.setCellStates(Object.keys(this.cells));
-	};
+	// Viewport.prototype.setAllCellStates = function (cell) {
+	//   this.setCellStates(Object.keys(this.cells));
+	// };
 	
 	Viewport.prototype.setHighlightData = function (data) {
 	  this.highlightData = data;
@@ -369,19 +411,23 @@
 /* 4 */
 /***/ function(module, exports) {
 
-	var Cell = function(row, col) {
+	var Cell = function(row, col, state, ctx) {
 	  this.size = 5;
 	
 	  this.row = row;
 	  this.col = col;
 	
-	  this.alive = false;
+	  this.state = state;
+	  this.ctx = ctx;
+	  // this.alive = false;
 	};
 	
-	Cell.prototype.renderOrb = function (ctx, percentage) {
-	  if (percentage > 1 || !this.transitioning) { percentage = 1; }
+	Cell.prototype.renderOrb = function (percentage) {
+	  if (percentage > 1 || this.state === "retained") { percentage = 1; }
 	
-	  var transitionModifier = this.alive ? percentage : 1 - percentage;
+	  var transitionModifier = this.state === "dying" ?
+	    1 - percentage :
+	    percentage;
 	
 	  var displayRadius = this.size / 2 * transitionModifier;
 	  var alpha = transitionModifier;
@@ -390,7 +436,7 @@
 	  var xPos = this.row * this.size + (radius);
 	  var yPos = this.col * this.size + (radius);
 	
-	  var gradient = ctx.createRadialGradient(
+	  var gradient = this.ctx.createRadialGradient(
 	    xPos,
 	    yPos,
 	    displayRadius,
@@ -401,16 +447,16 @@
 	  gradient.addColorStop(0, "black");
 	  gradient.addColorStop(1, "rgba(8, 146, 208, " + alpha + ")");
 	
-	  ctx.beginPath();
-	  ctx.arc(xPos, yPos, radius, 0, 2*Math.PI);
-	  ctx.fillStyle = gradient;
-	  ctx.fill();
+	  this.ctx.beginPath();
+	  this.ctx.arc(xPos, yPos, radius, 0, 2*Math.PI);
+	  this.ctx.fillStyle = gradient;
+	  this.ctx.fill();
 	};
 	
-	Cell.prototype.receiveLiveState = function (liveState) {
-	  this.transitioning = liveState !== this.alive;
-	  this.alive = liveState;
-	};
+	// Cell.prototype.receiveLiveState = function (liveState) {
+	//   this.transitioning = liveState !== this.alive;
+	//   this.alive = liveState;
+	// };
 	
 	module.exports = Cell;
 
