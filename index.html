@@ -5,6 +5,7 @@
     <title>Cellular Automata</title>
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="./cellular_automata.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
@@ -12,7 +13,7 @@
     <script src="bundle.js"></script>
   </head>
   <body>
-    <h1>Explore Cellular Automata</h1>
+    <h1>Constellations</h1>
 
     <nav>
       <button id="play-button">Play</button>
@@ -36,6 +37,27 @@
         <ul id="structures"></ul>
       </div>
       <canvas id="canvas" width="800" height="800"></canvas>
+      <div class="sidebar instructions">
+        <h3>Instructions:</h3>
+        <p>
+          Constellations is a simulator of Conway's Game of Life. The Game of Life is based on two simple rules:
+        </p>
+        <ol>
+          <li>
+            A dead cell comes alive if exactly three of its neighbors are alive.
+          </li>
+          <br/>
+          <li>
+            A living cell dies unless exactly two or three of its neighbors are alive.
+          </li>
+        </ol>
+        <p>
+          Adjust gameplay using the controls at the top of the screen.
+        </p>
+        <p>
+          Use the left side panel to add or remove cells.
+        </p>
+      </div>
     </div>
   </body>
 </html>
