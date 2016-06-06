@@ -276,20 +276,9 @@
 	  this.ctx = ctx;
 	  this.gridlines = true;
 	  this.zoomLevel = 4;
-	  this.states = { retained: new Set, awakening: new Set, dying: new Set };
 	
 	  this.cells = [];
-	
-	  // this.generateCells();
 	};
-	
-	// Viewport.prototype.generateCells = function () {
-	//   for (var row = -80; row < 80; row++) {
-	//     for (var col = -80; col < 80; col++) {
-	//       this.cells[[row, col].join(',')] = new Cell(row, col);
-	//     }
-	//   }
-	// };
 	
 	Viewport.prototype.render = function (percentage) {
 	  this.recontextualize();
@@ -298,13 +287,6 @@
 	  this.cells.forEach(function(cell) {
 	    cell.renderOrb(percentage)
 	  });
-	  // Object.keys(this.cells).forEach(function(key){
-	  //   var cell = this.cells[key];
-	  //
-	  //   if (cell.transitioning || cell.alive) {
-	  //     cell.renderOrb(this.ctx, percentage);
-	  //   }
-	  // }.bind(this));
 	
 	  if (this.highlightData) { this.highlightCells(); }
 	  if (this.gridlines) { this.addGridlines(); }
@@ -382,19 +364,7 @@
 	      self.cells.push(new Cell(...pos, state, self.ctx));
 	    });
 	  });
-	
-	  // posKeys.forEach(function(key){
-	  //   var cell = this.cells[key];
-	  //
-	  //   var liveState = this.grid.alive([cell.row, cell.col]);
-	  //
-	  //   cell.receiveLiveState(liveState);
-	  // }.bind(this));
 	};
-	
-	// Viewport.prototype.setAllCellStates = function (cell) {
-	//   this.setCellStates(Object.keys(this.cells));
-	// };
 	
 	Viewport.prototype.setHighlightData = function (data) {
 	  this.highlightData = data;
@@ -419,7 +389,6 @@
 	
 	  this.state = state;
 	  this.ctx = ctx;
-	  // this.alive = false;
 	};
 	
 	Cell.prototype.renderOrb = function (percentage) {
@@ -452,11 +421,6 @@
 	  this.ctx.fillStyle = gradient;
 	  this.ctx.fill();
 	};
-	
-	// Cell.prototype.receiveLiveState = function (liveState) {
-	//   this.transitioning = liveState !== this.alive;
-	//   this.alive = liveState;
-	// };
 	
 	module.exports = Cell;
 
