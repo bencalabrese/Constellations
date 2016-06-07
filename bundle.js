@@ -153,6 +153,7 @@
 	
 	Game.prototype.clearGrid = function () {
 	  this.grid.clear();
+	  this.viewport.setCellStates(this.grid.states);
 	};
 	
 	module.exports = Game;
@@ -267,6 +268,11 @@
 	
 	Grid.prototype.clear = function () {
 	  this.livingCells = new Set;
+	  this.states = {
+	    retained: new Set,
+	    awakening: new Set,
+	    dying: new Set
+	  };
 	};
 	
 	module.exports = Grid;
