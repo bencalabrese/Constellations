@@ -1,5 +1,5 @@
 var Game = require('./lib/game'),
-    bindListeners = require('./lib/listeners'); 
+    bindListeners = require('./lib/listeners');
 
 $(function() {
   var canvasEl = document.getElementById('canvas');
