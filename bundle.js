@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(17); 
+	    bindListeners = __webpack_require__(17);
 	
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
@@ -91,10 +91,9 @@
 	    percentage %= 1;
 	    cycleStart += this.speed;
 	
-	    if (this.playing) {
-	      this.grid.toggleCells();
-	      this.viewport.setCellStates(this.grid.states);
-	    }
+	    this.playing ? this.grid.toggleCells() : this.grid.finishCycle();
+	
+	    this.viewport.setCellStates(this.grid.states);
 	  }
 	
 	  this.viewport.render(percentage);
@@ -218,6 +217,14 @@
 	    retained: retained,
 	    awakening: awakening,
 	    dying: dying
+	  };
+	};
+	
+	Grid.prototype.finishCycle = function () {
+	  this.states = {
+	    retained: this.livingCells,
+	    awakening: new Set,
+	    dying: new Set
 	  };
 	};
 	
