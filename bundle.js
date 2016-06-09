@@ -297,6 +297,7 @@
 	  this.gridlines = true;
 	  this.zoomLevel = 4;
 	  this.cellOffsets = [0, 0];
+	  this.cellFractionOffsets = [0, 0];
 	
 	  this.cells = [];
 	};
@@ -319,8 +320,8 @@
 	    0,
 	    0,
 	    this.zoomLevel,
-	    this.ctx.canvas.width / 2,
-	    this.ctx.canvas.height / 2
+	    this.ctx.canvas.width / 2 + this.cellFractionOffsets[0] * 5 * this.zoomLevel,
+	    this.ctx.canvas.height / 2 + this.cellFractionOffsets[1] * 5 * this.zoomLevel
 	  );
 	};
 	
@@ -362,7 +363,10 @@
 	};
 	
 	Viewport.prototype.calculateGridPos = function (mousePos) {
-	  var offsets = [this.ctx.canvas.width / 2, this.ctx.canvas.height / 2];
+	  var offsets = [
+	    this.ctx.canvas.width / 2 + this.cellFractionOffsets[0] * 5 * this.zoomLevel,
+	    this.ctx.canvas.height / 2 + this.cellFractionOffsets[1] * 5 * this.zoomLevel
+	  ];
 	
 	  return mousePos.map(function(dim, idx) {
 	    var offset = dim - offsets[idx];
@@ -396,7 +400,8 @@
 	};
 	
 	Viewport.prototype.setCellsOffsets = function (offsets) {
-	  this.cellOffsets = offsets;
+	  this.cellFractionOffsets = offsets.map(offset => offset % 1 );
+	  this.cellOffsets = offsets.map(offset => Math.floor(offset) );
 	};
 	
 	module.exports = Viewport;
