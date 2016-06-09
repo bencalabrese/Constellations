@@ -329,7 +329,7 @@
 	      height = this.ctx.canvas.height;
 	
 	  this.ctx.fillStyle = 'black';
-	  this.ctx.fillRect(width / -2, height / -2, width, height);
+	  this.ctx.fillRect(width * -1, height * -1, width * 2, height * 2);
 	};
 	
 	Viewport.prototype.addGridlines = function () {
@@ -875,10 +875,12 @@
 	    Structures = __webpack_require__(6);
 	
 	var bindListeners = function(game) {
-	  $(window).on("blur focus", function() {
-	    game.toggleTabFocus();
-	    setPlayButtonText();
-	  });
+	  // disabled for development so that I can access devtools
+	  //
+	  // $(window).on("blur focus", function() {
+	  //   game.toggleTabFocus();
+	  //   setPlayButtonText();
+	  // });
 	
 	  $('#play-button').click(function(event) {
 	    game.togglePlayState();
