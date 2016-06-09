@@ -74,6 +74,8 @@
 	  this.playing = false;
 	  this.speed = 1000;
 	
+	  this.tabFocus = true;
+	
 	  this.cycle();
 	};
 	
@@ -91,6 +93,7 @@
 	    percentage %= 1;
 	    cycleStart += this.speed;
 	
+	    if (!this.tabFocus) { this.playing = false; }
 	    this.playing ? this.grid.toggleCells() : this.grid.finishCycle();
 	
 	    this.viewport.setCellStates(this.grid.states);
@@ -115,6 +118,10 @@
 	
 	Game.prototype.setSpeed = function (newSpeed) {
 	  this.speed = newSpeed;
+	};
+	
+	Game.prototype.toggleTabFocus = function () {
+	  this.tabFocus = this.tabFocus ? false : true;
 	};
 	
 	Game.prototype.highlightCells = function (mousePos) {
@@ -868,13 +875,21 @@
 	    Structures = __webpack_require__(6);
 	
 	var bindListeners = function(game) {
+	  $(window).on("blur focus", function() {
+	    game.toggleTabFocus();
+	    setPlayButtonText();
+	  });
+	
 	  $('#play-button').click(function(event) {
 	    game.togglePlayState();
+	    setPlayButtonText();
+	  });
 	
-	    $(event.currentTarget).text(function(){
+	  function setPlayButtonText() {
+	    $('#play-button').text(function(){
 	      return game.playing ? "Pause" : "Play";
 	    });
-	  });
+	  }
 	
 	  $('#gridlines-button').click(game.toggleGridlines.bind(game));
 	
