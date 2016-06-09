@@ -50,9 +50,9 @@
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
 	  var ctx = canvasEl.getContext('2d');
-	  var game = new Game(ctx);
+	  window.game = new Game(ctx);
 	
-	  bindListeners(game);
+	  bindListeners(window.game);
 	});
 
 
@@ -289,6 +289,7 @@
 	  this.ctx = ctx;
 	  this.gridlines = true;
 	  this.zoomLevel = 4;
+	  this.cellOffsets = [0, 0];
 	
 	  this.cells = [];
 	};
@@ -298,8 +299,8 @@
 	  this.clear();
 	
 	  this.cells.forEach(function(cell) {
-	    cell.renderOrb(percentage)
-	  });
+	    cell.renderOrb(percentage, this.cellOffsets)
+	  }.bind(this));
 	
 	  if (this.highlightData) { this.highlightCells(); }
 	  if (this.gridlines) { this.addGridlines(); }
@@ -311,8 +312,8 @@
 	    0,
 	    0,
 	    this.zoomLevel,
-	    this.ctx.canvas.height / 2,
-	    this.ctx.canvas.width / 2
+	    this.ctx.canvas.width / 2,
+	    this.ctx.canvas.height / 2
 	  );
 	};
 	
@@ -330,8 +331,8 @@
 	    this.ctx.moveTo(this.ctx.canvas.width / -2, i * 5);
 	    this.ctx.lineTo(this.ctx.canvas.width / 2, i * 5);
 	
-	    this.ctx.moveTo(i * 5, this.ctx.canvas.width / -2);
-	    this.ctx.lineTo(i * 5, this.ctx.canvas.width / 2);
+	    this.ctx.moveTo(i * 5, this.ctx.canvas.height / -2);
+	    this.ctx.lineTo(i * 5, this.ctx.canvas.height / 2);
 	  }
 	
 	  this.ctx.strokeStyle = "gray";
@@ -346,8 +347,8 @@
 	
 	  this.ctx.fillStyle = 'rgba(255,255,0,0.2)';
 	  this.ctx.fillRect(
-	    row * 5,
-	    col * 5,
+	    (row + this.cellOffsets[0]) * 5,
+	    (col + this.cellOffsets[1]) * 5,
 	    this.highlightData.width * 5,
 	    this.highlightData.height * 5
 	  );
@@ -358,7 +359,7 @@
 	
 	  return mousePos.map(function(dim, idx) {
 	    var offset = dim - offsets[idx];
-	    return Math.floor(offset / 5 / this.zoomLevel);
+	    return Math.floor(offset / 5 / this.zoomLevel) - this.cellOffsets[idx];
 	  }.bind(this));
 	};
 	
@@ -387,6 +388,10 @@
 	  this.zoomLevel = level;
 	};
 	
+	Viewport.prototype.setCellsOffsets = function (offsets) {
+	  this.cellOffsets = offsets;
+	};
+	
 	module.exports = Viewport;
 
 
@@ -404,7 +409,7 @@
 	  this.ctx = ctx;
 	};
 	
-	Cell.prototype.renderOrb = function (percentage) {
+	Cell.prototype.renderOrb = function (percentage, offsets) {
 	  if (percentage > 1 || this.state === "retained") { percentage = 1; }
 	
 	  var transitionModifier = this.state === "dying" ?
@@ -415,8 +420,8 @@
 	  var alpha = transitionModifier;
 	
 	  var radius = this.size / 2;
-	  var xPos = this.row * this.size + (radius);
-	  var yPos = this.col * this.size + (radius);
+	  var xPos = (this.row + offsets[0]) * this.size + radius;
+	  var yPos = (this.col + offsets[1]) * this.size + radius;
 	
 	  var gradient = this.ctx.createRadialGradient(
 	    xPos,
