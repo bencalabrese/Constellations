@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(17);
+	    bindListeners = __webpack_require__(18);
 	
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
@@ -156,6 +156,10 @@
 	
 	Game.prototype.setSelectedStructure = function (structure) {
 	  this.selectedStructure = structure;
+	};
+	
+	Game.prototype.setOffsets = function (startPos, endPos) {
+	  this.viewport.setOffsets(startPos, endPos);
 	};
 	
 	Game.prototype.clearGrid = function () {
@@ -296,6 +300,7 @@
 	  this.ctx = ctx;
 	  this.gridlines = true;
 	  this.zoomLevel = 4;
+	  this.offsets = [0, 0];
 	  this.cellOffsets = [0, 0];
 	  this.cellFractionOffsets = [0, 0];
 	
@@ -399,9 +404,18 @@
 	  this.zoomLevel = level;
 	};
 	
-	Viewport.prototype.setCellsOffsets = function (offsets) {
-	  this.cellFractionOffsets = offsets.map(offset => offset % 1 );
-	  this.cellOffsets = offsets.map(offset => Math.floor(offset) );
+	Viewport.prototype.setOffsets = function (startPos, endPos) {
+	  var xOffset = (endPos[0] - startPos[0]) / 5 / this.zoomLevel,
+	      yOffset = (endPos[1] - startPos[1]) / 5 / this.zoomLevel,
+	      offsets = [this.offsets[0] + xOffset, this.offsets[1] + yOffset];
+	
+	  this.offsets = offsets;
+	  this.calcCellOffsets();
+	};
+	
+	Viewport.prototype.calcCellOffsets = function () {
+	  this.cellFractionOffsets = this.offsets.map(offset => offset % 1 );
+	  this.cellOffsets = this.offsets.map(offset => Math.floor(offset) );
 	};
 	
 	module.exports = Viewport;
@@ -531,7 +545,7 @@
 	  GosperGliderGun: __webpack_require__(15),
 	  // Halfmax: require('./halfmax'),
 	  // BreederOne: require('./breeder_one'),
-	  BackrakeOne: __webpack_require__(16)
+	  BackrakeOne: __webpack_require__(17)
 	};
 	
 	module.exports = Structures;
@@ -771,7 +785,8 @@
 
 
 /***/ },
-/* 16 */
+/* 16 */,
+/* 17 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -873,19 +888,19 @@
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Structure = __webpack_require__(5),
 	    Structures = __webpack_require__(6);
 	
 	var bindListeners = function(game) {
-	  // disabled for development so that I can access devtools
-	  //
-	  // $(window).on("blur focus", function() {
-	  //   game.toggleTabFocus();
-	  //   setPlayButtonText();
-	  // });
+	  // Top Control Panel
+	
+	  $(window).on("blur focus", function() {
+	    game.toggleTabFocus();
+	    setPlayButtonText();
+	  });
 	
 	  $('#play-button').click(function(event) {
 	    game.togglePlayState();
@@ -920,23 +935,65 @@
 	    }
 	  });
 	
+	  // Canvas Events
+	  var panning = false,
+	      panStart = null;
+	
+	  function sendPanData(panEnd) {
+	    game.setOffsets(panStart, panEnd);
+	  }
+	
+	  $(window).keydown(event => {
+	    if (event.key === "Shift") {
+	      panning = true;
+	      game.clearHighlightData();
+	      $('#canvas').addClass("pan-hover");
+	    }
+	  });
+	
+	  $(window).keyup(event => {
+	    if (event.key === "Shift") {
+	      panning = false;
+	      $('#canvas').removeClass("pan-hover pan-grab");
+	    }
+	  });
+	
 	  $('#canvas').mousemove(function(event) {
 	    var canvas = event.currentTarget,
 	        x = event.pageX - canvas.offsetLeft,
 	        y = event.pageY - canvas.offsetTop;
 	
-	    game.highlightCells([x,y]);
+	    if (panning) {
+	      if (panStart) {
+	        sendPanData([x,y]);
+	        panStart = [x, y];
+	      }
+	    } else {
+	      game.highlightCells([x,y]);
+	    }
 	  });
 	
 	  $('#canvas').mouseleave(game.clearHighlightData.bind(game));
 	
-	  $('#canvas').click(function(event) {
+	  $('#canvas').mousedown(function(event) {
 	    var canvas = event.currentTarget,
 	        x = event.pageX - canvas.offsetLeft,
 	        y = event.pageY - canvas.offsetTop;
 	
-	    game.addSelectedStructure([x,y]);
+	    if (panning) {
+	      panStart = [x, y];
+	      $('#canvas').addClass("pan-grab");
+	    } else {
+	      game.addSelectedStructure([x,y]);
+	    }
 	  });
+	
+	  $('#canvas').mouseup(function(event) {
+	    $('#canvas').removeClass("pan-grab");
+	    panStart = null;
+	  });
+	
+	  // Structures Panel
 	
 	  var rotation = 0;
 	  var selectedStructure = Structures.SingleCell;

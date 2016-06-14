@@ -72,6 +72,20 @@ canvas:hover {
   cursor: none;
 }
 
+.pan-hover:hover {
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.pan-grab:hover {
+  cursor: move;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
 p {
   padding-left: 10px;
 }
