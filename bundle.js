@@ -45,14 +45,14 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(17);
+	    bindListeners = __webpack_require__(18);
 	
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
 	  var ctx = canvasEl.getContext('2d');
-	  var game = new Game(ctx);
+	  window.game = new Game(ctx);
 	
-	  bindListeners(game);
+	  bindListeners(window.game);
 	});
 
 
@@ -74,6 +74,8 @@
 	  this.playing = false;
 	  this.speed = 1000;
 	
+	  this.tabFocus = true;
+	
 	  this.cycle();
 	};
 	
@@ -91,6 +93,7 @@
 	    percentage %= 1;
 	    cycleStart += this.speed;
 	
+	    if (!this.tabFocus) { this.playing = false; }
 	    this.playing ? this.grid.toggleCells() : this.grid.finishCycle();
 	
 	    this.viewport.setCellStates(this.grid.states);
@@ -115,6 +118,10 @@
 	
 	Game.prototype.setSpeed = function (newSpeed) {
 	  this.speed = newSpeed;
+	};
+	
+	Game.prototype.toggleTabFocus = function () {
+	  this.tabFocus = this.tabFocus ? false : true;
 	};
 	
 	Game.prototype.highlightCells = function (mousePos) {
@@ -151,8 +158,13 @@
 	  this.selectedStructure = structure;
 	};
 	
+	Game.prototype.setOffsets = function (startPos, endPos) {
+	  this.viewport.setOffsets(startPos, endPos);
+	};
+	
 	Game.prototype.clearGrid = function () {
 	  this.grid.clear();
+	  this.viewport.setCellStates(this.grid.states);
 	};
 	
 	module.exports = Game;
@@ -267,6 +279,11 @@
 	
 	Grid.prototype.clear = function () {
 	  this.livingCells = new Set;
+	  this.states = {
+	    retained: new Set,
+	    awakening: new Set,
+	    dying: new Set
+	  };
 	};
 	
 	module.exports = Grid;
@@ -283,6 +300,9 @@
 	  this.ctx = ctx;
 	  this.gridlines = true;
 	  this.zoomLevel = 4;
+	  this.offsets = [0, 0];
+	  this.cellOffsets = [0, 0];
+	  this.cellFractionOffsets = [0, 0];
 	
 	  this.cells = [];
 	};
@@ -292,8 +312,8 @@
 	  this.clear();
 	
 	  this.cells.forEach(function(cell) {
-	    cell.renderOrb(percentage)
-	  });
+	    cell.renderOrb(percentage, this.cellOffsets)
+	  }.bind(this));
 	
 	  if (this.highlightData) { this.highlightCells(); }
 	  if (this.gridlines) { this.addGridlines(); }
@@ -305,8 +325,8 @@
 	    0,
 	    0,
 	    this.zoomLevel,
-	    this.ctx.canvas.height / 2,
-	    this.ctx.canvas.width / 2
+	    this.ctx.canvas.width / 2 + this.cellFractionOffsets[0] * 5 * this.zoomLevel,
+	    this.ctx.canvas.height / 2 + this.cellFractionOffsets[1] * 5 * this.zoomLevel
 	  );
 	};
 	
@@ -315,7 +335,7 @@
 	      height = this.ctx.canvas.height;
 	
 	  this.ctx.fillStyle = 'black';
-	  this.ctx.fillRect(width / -2, height / -2, width, height);
+	  this.ctx.fillRect(width * -1, height * -1, width * 2, height * 2);
 	};
 	
 	Viewport.prototype.addGridlines = function () {
@@ -324,8 +344,8 @@
 	    this.ctx.moveTo(this.ctx.canvas.width / -2, i * 5);
 	    this.ctx.lineTo(this.ctx.canvas.width / 2, i * 5);
 	
-	    this.ctx.moveTo(i * 5, this.ctx.canvas.width / -2);
-	    this.ctx.lineTo(i * 5, this.ctx.canvas.width / 2);
+	    this.ctx.moveTo(i * 5, this.ctx.canvas.height / -2);
+	    this.ctx.lineTo(i * 5, this.ctx.canvas.height / 2);
 	  }
 	
 	  this.ctx.strokeStyle = "gray";
@@ -340,19 +360,22 @@
 	
 	  this.ctx.fillStyle = 'rgba(255,255,0,0.2)';
 	  this.ctx.fillRect(
-	    row * 5,
-	    col * 5,
+	    (row + this.cellOffsets[0]) * 5,
+	    (col + this.cellOffsets[1]) * 5,
 	    this.highlightData.width * 5,
 	    this.highlightData.height * 5
 	  );
 	};
 	
 	Viewport.prototype.calculateGridPos = function (mousePos) {
-	  var offsets = [this.ctx.canvas.width / 2, this.ctx.canvas.height / 2];
+	  var offsets = [
+	    this.ctx.canvas.width / 2 + this.cellFractionOffsets[0] * 5 * this.zoomLevel,
+	    this.ctx.canvas.height / 2 + this.cellFractionOffsets[1] * 5 * this.zoomLevel
+	  ];
 	
 	  return mousePos.map(function(dim, idx) {
 	    var offset = dim - offsets[idx];
-	    return Math.floor(offset / 5 / this.zoomLevel);
+	    return Math.floor(offset / 5 / this.zoomLevel) - this.cellOffsets[idx];
 	  }.bind(this));
 	};
 	
@@ -381,6 +404,26 @@
 	  this.zoomLevel = level;
 	};
 	
+	Viewport.prototype.setOffsets = function (startPos, endPos) {
+	  var xOffset = (endPos[0] - startPos[0]) / 5 / this.zoomLevel,
+	      yOffset = (endPos[1] - startPos[1]) / 5 / this.zoomLevel,
+	      offsets = [this.offsets[0] + xOffset, this.offsets[1] + yOffset];
+	
+	  this.offsets = offsets;
+	  this.calcCellOffsets();
+	};
+	
+	Viewport.prototype.calcCellOffsets = function () {
+	  this.cellFractionOffsets = this.offsets.map(offset => offset % 1 );
+	  this.cellOffsets = this.offsets.map(offset => {
+	    if (offset === 0) { return 0; }
+	
+	    negationMod = offset / Math.abs(offset);
+	
+	    return Math.floor(offset * negationMod) * negationMod;
+	  });
+	};
+	
 	module.exports = Viewport;
 
 
@@ -398,7 +441,7 @@
 	  this.ctx = ctx;
 	};
 	
-	Cell.prototype.renderOrb = function (percentage) {
+	Cell.prototype.renderOrb = function (percentage, offsets) {
 	  if (percentage > 1 || this.state === "retained") { percentage = 1; }
 	
 	  var transitionModifier = this.state === "dying" ?
@@ -409,8 +452,8 @@
 	  var alpha = transitionModifier;
 	
 	  var radius = this.size / 2;
-	  var xPos = this.row * this.size + (radius);
-	  var yPos = this.col * this.size + (radius);
+	  var xPos = (this.row + offsets[0]) * this.size + radius;
+	  var yPos = (this.col + offsets[1]) * this.size + radius;
 	
 	  var gradient = this.ctx.createRadialGradient(
 	    xPos,
@@ -508,7 +551,7 @@
 	  GosperGliderGun: __webpack_require__(15),
 	  // Halfmax: require('./halfmax'),
 	  // BreederOne: require('./breeder_one'),
-	  BackrakeOne: __webpack_require__(16)
+	  BackrakeOne: __webpack_require__(17)
 	};
 	
 	module.exports = Structures;
@@ -748,7 +791,8 @@
 
 
 /***/ },
-/* 16 */
+/* 16 */,
+/* 17 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -850,20 +894,30 @@
 
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Structure = __webpack_require__(5),
 	    Structures = __webpack_require__(6);
 	
 	var bindListeners = function(game) {
+	  // Top Control Panel
+	
+	  $(window).on("blur focus", function() {
+	    game.toggleTabFocus();
+	    setPlayButtonText();
+	  });
+	
 	  $('#play-button').click(function(event) {
 	    game.togglePlayState();
+	    setPlayButtonText();
+	  });
 	
-	    $(event.currentTarget).text(function(){
+	  function setPlayButtonText() {
+	    $('#play-button').text(function(){
 	      return game.playing ? "Pause" : "Play";
 	    });
-	  });
+	  }
 	
 	  $('#gridlines-button').click(game.toggleGridlines.bind(game));
 	
@@ -887,23 +941,70 @@
 	    }
 	  });
 	
+	  // Canvas Events
+	  var panning = false,
+	      panStart = null;
+	
+	  function sendPanData(panEnd) {
+	    game.setOffsets(panStart, panEnd);
+	  }
+	
+	  function resetPanData() {
+	    $('#canvas').removeClass("pan-grab");
+	    panStart = null;
+	  }
+	
+	  $(window).keydown(event => {
+	    if (event.key === "Shift") {
+	      panning = true;
+	      game.clearHighlightData();
+	      $('#canvas').addClass("pan-hover");
+	    }
+	  });
+	
+	  $(window).keyup(event => {
+	    if (event.key === "Shift") {
+	      panning = false;
+	      $('#canvas').removeClass("pan-hover pan-grab");
+	    }
+	  });
+	
 	  $('#canvas').mousemove(function(event) {
 	    var canvas = event.currentTarget,
 	        x = event.pageX - canvas.offsetLeft,
 	        y = event.pageY - canvas.offsetTop;
 	
-	    game.highlightCells([x,y]);
+	    if (panning) {
+	      if (panStart) {
+	        sendPanData([x,y]);
+	        panStart = [x, y];
+	      }
+	    } else {
+	      game.highlightCells([x,y]);
+	    }
 	  });
 	
-	  $('#canvas').mouseleave(game.clearHighlightData.bind(game));
+	  $('#canvas').mouseleave(function () {
+	    game.clearHighlightData();
+	    resetPanData();
+	  });
 	
-	  $('#canvas').click(function(event) {
+	  $('#canvas').mousedown(function(event) {
 	    var canvas = event.currentTarget,
 	        x = event.pageX - canvas.offsetLeft,
 	        y = event.pageY - canvas.offsetTop;
 	
-	    game.addSelectedStructure([x,y]);
+	    if (panning) {
+	      panStart = [x, y];
+	      $('#canvas').addClass("pan-grab");
+	    } else {
+	      game.addSelectedStructure([x,y]);
+	    }
 	  });
+	
+	  $('#canvas').mouseup(resetPanData);
+	
+	  // Structures Panel
 	
 	  var rotation = 0;
 	  var selectedStructure = Structures.SingleCell;
