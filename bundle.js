@@ -415,7 +415,13 @@
 	
 	Viewport.prototype.calcCellOffsets = function () {
 	  this.cellFractionOffsets = this.offsets.map(offset => offset % 1 );
-	  this.cellOffsets = this.offsets.map(offset => Math.floor(offset) );
+	  this.cellOffsets = this.offsets.map(offset => {
+	    if (offset === 0) { return 0; }
+	
+	    negationMod = offset / Math.abs(offset);
+	
+	    return Math.floor(offset * negationMod) * negationMod;
+	  });
 	};
 	
 	module.exports = Viewport;
@@ -943,6 +949,11 @@
 	    game.setOffsets(panStart, panEnd);
 	  }
 	
+	  function resetPanData() {
+	    $('#canvas').removeClass("pan-grab");
+	    panStart = null;
+	  }
+	
 	  $(window).keydown(event => {
 	    if (event.key === "Shift") {
 	      panning = true;
@@ -973,7 +984,10 @@
 	    }
 	  });
 	
-	  $('#canvas').mouseleave(game.clearHighlightData.bind(game));
+	  $('#canvas').mouseleave(function () {
+	    game.clearHighlightData();
+	    resetPanData();
+	  });
 	
 	  $('#canvas').mousedown(function(event) {
 	    var canvas = event.currentTarget,
@@ -988,10 +1002,7 @@
 	    }
 	  });
 	
-	  $('#canvas').mouseup(function(event) {
-	    $('#canvas').removeClass("pan-grab");
-	    panStart = null;
-	  });
+	  $('#canvas').mouseup(resetPanData);
 	
 	  // Structures Panel
 	
