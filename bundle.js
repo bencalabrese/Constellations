@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var Game = __webpack_require__(1),
-	    bindListeners = __webpack_require__(18);
+	    bindListeners = __webpack_require__(17);
 	
 	$(function() {
 	  var canvasEl = document.getElementById('canvas');
@@ -69,7 +69,7 @@
 	  this.ctx = ctx;
 	  this.grid = new Grid();
 	  this.viewport = new Viewport(this.grid, this.ctx);
-	  this.selectedStructure = new Structure (Structures.SingleCell);
+	  this.selectedStructure = new Structure (Structures.BackrakeOne);
 	
 	  this.playing = false;
 	  this.speed = 1000;
@@ -542,16 +542,14 @@
 	var Structures = {
 	  SingleCell: __webpack_require__(7),
 	  Eraser: __webpack_require__(8),
+	  BackrakeOne: __webpack_require__(16),
+	  GosperGliderGun: __webpack_require__(15),
 	  Block: __webpack_require__(9),
 	  Blinker: __webpack_require__(10),
 	  Cross: __webpack_require__(11),
 	  KoksGalaxy: __webpack_require__(12),
 	  Glider: __webpack_require__(13),
-	  RPentomino: __webpack_require__(14),
-	  GosperGliderGun: __webpack_require__(15),
-	  // Halfmax: require('./halfmax'),
-	  // BreederOne: require('./breeder_one'),
-	  BackrakeOne: __webpack_require__(17)
+	  RPentomino: __webpack_require__(14)
 	};
 	
 	module.exports = Structures;
@@ -791,8 +789,7 @@
 
 
 /***/ },
-/* 16 */,
-/* 17 */
+/* 16 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -894,7 +891,7 @@
 
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Structure = __webpack_require__(5),
@@ -955,7 +952,7 @@
 	  }
 	
 	  $(window).keydown(event => {
-	    if (event.key === "Shift") {
+	    if (event.key === "Alt") {
 	      panning = true;
 	      game.clearHighlightData();
 	      $('#canvas').addClass("pan-hover");
@@ -963,7 +960,7 @@
 	  });
 	
 	  $(window).keyup(event => {
-	    if (event.key === "Shift") {
+	    if (event.key === "Alt") {
 	      panning = false;
 	      $('#canvas').removeClass("pan-hover pan-grab");
 	    }
@@ -1031,6 +1028,9 @@
 	    if (!structure.imageUrl) { return; }
 	
 	    var $structure = $("<img src='./assets/" + structure.imageUrl + "'/></img>");
+	
+	    if (key === "BackrakeOne") { $structure.addClass("selected") }
+	
 	    $structure.click(select.bind(null, structure));
 	
 	    $('#structures').append($structure);
