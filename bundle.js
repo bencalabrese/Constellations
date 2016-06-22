@@ -542,14 +542,14 @@
 	var Structures = {
 	  SingleCell: __webpack_require__(7),
 	  Eraser: __webpack_require__(8),
-	  BackrakeOne: __webpack_require__(16),
-	  GosperGliderGun: __webpack_require__(15),
-	  Block: __webpack_require__(9),
-	  Blinker: __webpack_require__(10),
-	  Cross: __webpack_require__(11),
-	  KoksGalaxy: __webpack_require__(12),
-	  Glider: __webpack_require__(13),
-	  RPentomino: __webpack_require__(14)
+	  BackrakeOne: __webpack_require__(9),
+	  GosperGliderGun: __webpack_require__(10),
+	  Block: __webpack_require__(11),
+	  Blinker: __webpack_require__(12),
+	  Cross: __webpack_require__(13),
+	  KoksGalaxy: __webpack_require__(14),
+	  Glider: __webpack_require__(15),
+	  RPentomino: __webpack_require__(16)
 	};
 	
 	module.exports = Structures;
@@ -583,213 +583,6 @@
 
 /***/ },
 /* 9 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "Block",
-	  imageUrl: "block.png",
-	  height: 4,
-	  width : 4,
-	  liveCellDeltas : [
-	    [1,1],
-	    [1,2],
-	    [2,1],
-	    [2,2]
-	  ]
-	};
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "Blinker",
-	  imageUrl: "blinker.png",
-	  height: 5,
-	  width : 3,
-	  liveCellDeltas : [
-	    [1,1],
-	    [1,2],
-	    [1,3]
-	  ]
-	};
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "Cross",
-	  imageUrl: "cross.png",
-	  height: 10,
-	  width : 10,
-	  liveCellDeltas : [
-	    [1, 3],
-	    [1, 4],
-	    [1, 5],
-	    [1, 6],
-	    [2, 3],
-	    [2, 6],
-	    [3, 1],
-	    [3, 2],
-	    [3, 3],
-	    [3, 6],
-	    [3, 7],
-	    [3, 8],
-	    [4, 1],
-	    [4, 8],
-	    [5, 1],
-	    [5, 8],
-	    [6, 1],
-	    [6, 2],
-	    [6, 3],
-	    [6, 6],
-	    [6, 7],
-	    [6, 8],
-	    [7, 3],
-	    [7, 6],
-	    [8, 3],
-	    [8, 4],
-	    [8, 5],
-	    [8, 6]
-	  ]
-	};
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "Kok's Galaxy",
-	  imageUrl: "koks_galaxy.png",
-	  height: 13,
-	  width: 13,
-	  liveCellDeltas: [
-	    [4, 2],
-	    [7, 2],
-	    [9, 2],
-	    [2, 3],
-	    [3, 3],
-	    [5, 3],
-	    [7, 3],
-	    [8, 3],
-	    [9, 3],
-	    [3, 4],
-	    [10, 4],
-	    [2, 5],
-	    [3, 5],
-	    [9, 5],
-	    [3, 7],
-	    [9, 7],
-	    [10, 7],
-	    [2, 8],
-	    [9, 8],
-	    [3, 9],
-	    [4, 9],
-	    [5, 9],
-	    [7, 9],
-	    [9, 9],
-	    [10, 9],
-	    [3, 10],
-	    [5, 10],
-	    [8, 10]
-	  ]
-	};
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "Glider",
-	  imageUrl: "glider.png",
-	  height: 5,
-	  width : 5,
-	  liveCellDeltas : [
-	    [1, 3],
-	    [2, 1],
-	    [2, 3],
-	    [3, 2],
-	    [3, 3]
-	  ]
-	};
-
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "R Pentomino",
-	  imageUrl: "r_pentomino.png",
-	  height: 5,
-	  width : 5,
-	  liveCellDeltas : [
-	    [1, 2],
-	    [1, 3],
-	    [2, 1],
-	    [2, 2],
-	    [3, 2]
-	  ]
-	};
-
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	module.exports = {
-	  name: "Gosper Glider Gun",
-	  imageUrl: "gosper_glider_gun.png",
-	  height: 11,
-	  width: 38,
-	  liveCellDeltas: [
-	    [25, 1],
-	    [23, 2],
-	    [25, 2],
-	    [13, 3],
-	    [14, 3],
-	    [21, 3],
-	    [22, 3],
-	    [35, 3],
-	    [36, 3],
-	    [12, 4],
-	    [16, 4],
-	    [21, 4],
-	    [22, 4],
-	    [35, 4],
-	    [36, 4],
-	    [1, 5],
-	    [2, 5],
-	    [11, 5],
-	    [17, 5],
-	    [21, 5],
-	    [22, 5],
-	    [1, 6],
-	    [2, 6],
-	    [11, 6],
-	    [15, 6],
-	    [17, 6],
-	    [18, 6],
-	    [23, 6],
-	    [25, 6],
-	    [11, 7],
-	    [17, 7],
-	    [25, 7],
-	    [12, 8],
-	    [16, 8],
-	    [13, 9],
-	    [14, 9]
-	  ]
-	};
-
-
-/***/ },
-/* 16 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -886,6 +679,213 @@
 	    [16, 17],
 	    [13, 18],
 	    [15, 18]
+	  ]
+	};
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "Gosper Glider Gun",
+	  imageUrl: "gosper_glider_gun.png",
+	  height: 11,
+	  width: 38,
+	  liveCellDeltas: [
+	    [25, 1],
+	    [23, 2],
+	    [25, 2],
+	    [13, 3],
+	    [14, 3],
+	    [21, 3],
+	    [22, 3],
+	    [35, 3],
+	    [36, 3],
+	    [12, 4],
+	    [16, 4],
+	    [21, 4],
+	    [22, 4],
+	    [35, 4],
+	    [36, 4],
+	    [1, 5],
+	    [2, 5],
+	    [11, 5],
+	    [17, 5],
+	    [21, 5],
+	    [22, 5],
+	    [1, 6],
+	    [2, 6],
+	    [11, 6],
+	    [15, 6],
+	    [17, 6],
+	    [18, 6],
+	    [23, 6],
+	    [25, 6],
+	    [11, 7],
+	    [17, 7],
+	    [25, 7],
+	    [12, 8],
+	    [16, 8],
+	    [13, 9],
+	    [14, 9]
+	  ]
+	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "Block",
+	  imageUrl: "block.png",
+	  height: 4,
+	  width : 4,
+	  liveCellDeltas : [
+	    [1,1],
+	    [1,2],
+	    [2,1],
+	    [2,2]
+	  ]
+	};
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "Blinker",
+	  imageUrl: "blinker.png",
+	  height: 5,
+	  width : 3,
+	  liveCellDeltas : [
+	    [1,1],
+	    [1,2],
+	    [1,3]
+	  ]
+	};
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "Cross",
+	  imageUrl: "cross.png",
+	  height: 10,
+	  width : 10,
+	  liveCellDeltas : [
+	    [1, 3],
+	    [1, 4],
+	    [1, 5],
+	    [1, 6],
+	    [2, 3],
+	    [2, 6],
+	    [3, 1],
+	    [3, 2],
+	    [3, 3],
+	    [3, 6],
+	    [3, 7],
+	    [3, 8],
+	    [4, 1],
+	    [4, 8],
+	    [5, 1],
+	    [5, 8],
+	    [6, 1],
+	    [6, 2],
+	    [6, 3],
+	    [6, 6],
+	    [6, 7],
+	    [6, 8],
+	    [7, 3],
+	    [7, 6],
+	    [8, 3],
+	    [8, 4],
+	    [8, 5],
+	    [8, 6]
+	  ]
+	};
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "Kok's Galaxy",
+	  imageUrl: "koks_galaxy.png",
+	  height: 13,
+	  width: 13,
+	  liveCellDeltas: [
+	    [4, 2],
+	    [7, 2],
+	    [9, 2],
+	    [2, 3],
+	    [3, 3],
+	    [5, 3],
+	    [7, 3],
+	    [8, 3],
+	    [9, 3],
+	    [3, 4],
+	    [10, 4],
+	    [2, 5],
+	    [3, 5],
+	    [9, 5],
+	    [3, 7],
+	    [9, 7],
+	    [10, 7],
+	    [2, 8],
+	    [9, 8],
+	    [3, 9],
+	    [4, 9],
+	    [5, 9],
+	    [7, 9],
+	    [9, 9],
+	    [10, 9],
+	    [3, 10],
+	    [5, 10],
+	    [8, 10]
+	  ]
+	};
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "Glider",
+	  imageUrl: "glider.png",
+	  height: 5,
+	  width : 5,
+	  liveCellDeltas : [
+	    [1, 3],
+	    [2, 1],
+	    [2, 3],
+	    [3, 2],
+	    [3, 3]
+	  ]
+	};
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	module.exports = {
+	  name: "R Pentomino",
+	  imageUrl: "r_pentomino.png",
+	  height: 5,
+	  width : 5,
+	  liveCellDeltas : [
+	    [1, 2],
+	    [1, 3],
+	    [2, 1],
+	    [2, 2],
+	    [3, 2]
 	  ]
 	};
 
@@ -1004,7 +1004,7 @@
 	  // Structures Panel
 	
 	  var rotation = 0;
-	  var selectedStructure = Structures.SingleCell;
+	  var selectedStructure = Structures.BackrakeOne;
 	
 	  function select(structure, event) {
 	    selectedStructure = structure;
