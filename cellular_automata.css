@@ -1,6 +1,6 @@
 body {
   background: black;
-  color: white;
+  color: rgb(8, 146, 208);
 }
 
 body * {
@@ -22,8 +22,31 @@ nav * {
   margin: 0 7px;
 }
 
+button {
+  font-size: 12px;
+  color: inherit;
+  border: 3px solid;
+  background: black;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+button:focus {
+  outline: none;
+}
+
 .slider {
   width: 200px;
+}
+
+.slider span:focus {
+  outline: none;
+}
+
+.slider span:hover {
+  cursor: pointer;
 }
 
 .container {
@@ -36,14 +59,21 @@ nav * {
   width: 200px;
 }
 
+.buttons button {
+  display: inline-block;
+  width: 150px;
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
 .buttons {
-  height: 25px;
+  height: 120px;
   text-align: center;
 }
 
 ul {
   text-align: center;
-  height: 775px;
+  height: 680px;
   margin: 0;
   padding: 0;
   overflow-y: scroll;
