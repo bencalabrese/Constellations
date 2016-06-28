@@ -98,6 +98,18 @@ canvas {
   border: 1px solid gray;
 }
 
+@media screen and (max-height: 900px) {
+  canvas {
+    width: 600px;
+    height: 600px;
+  }
+
+  ul {
+    height: 480px;
+  }
+}
+
+
 canvas:hover {
   cursor: none;
 }
