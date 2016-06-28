@@ -951,6 +951,21 @@
 	    panStart = null;
 	  }
 	
+	  function calcMousePos(event) {
+	    var canvas = event.currentTarget,
+	        x = event.pageX - canvas.offsetLeft,
+	        y = event.pageY - canvas.offsetTop;
+	
+	    var pos = [x, y];
+	
+	    // adjust for media query
+	    if ($(window).height() < 900) {
+	      pos = pos.map(val => val * 4 / 3);
+	    }
+	
+	    return pos;
+	  }
+	
 	  $(window).keydown(event => {
 	    if (event.key === "Alt") {
 	      panning = true;
@@ -967,17 +982,15 @@
 	  });
 	
 	  $('#canvas').mousemove(function(event) {
-	    var canvas = event.currentTarget,
-	        x = event.pageX - canvas.offsetLeft,
-	        y = event.pageY - canvas.offsetTop;
+	    var pos = calcMousePos(event);
 	
 	    if (panning) {
 	      if (panStart) {
-	        sendPanData([x,y]);
-	        panStart = [x, y];
+	        sendPanData(pos);
+	        panStart = pos;
 	      }
 	    } else {
-	      game.highlightCells([x,y]);
+	      game.highlightCells(pos);
 	    }
 	  });
 	
@@ -987,15 +1000,13 @@
 	  });
 	
 	  $('#canvas').mousedown(function(event) {
-	    var canvas = event.currentTarget,
-	        x = event.pageX - canvas.offsetLeft,
-	        y = event.pageY - canvas.offsetTop;
+	    var pos = calcMousePos(event);
 	
 	    if (panning) {
-	      panStart = [x, y];
+	      panStart = pos;
 	      $('#canvas').addClass("pan-grab");
 	    } else {
-	      game.addSelectedStructure([x,y]);
+	      game.addSelectedStructure(pos);
 	    }
 	  });
 	
