@@ -1,5 +1,6 @@
 var Game = require('./lib/game'),
-    bindListeners = require('./lib/listeners');
+    bindListeners = require('./lib/listeners'),
+    startTour = require('./lib/tour');
 
 $(function() {
   var canvasEl = document.getElementById('canvas');
@@ -7,4 +8,5 @@ $(function() {
   window.game = new Game(ctx);
 
   bindListeners(window.game);
+  startTour();
 });

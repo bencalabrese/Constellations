@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="./cellular_automata.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/intro.js/2.2.0/introjs.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=" crossorigin="anonymous"></script>
     <script src="bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/intro.js/2.2.0/intro.min.js"></script>
   </head>
   <body>
     <h1>Constellations</h1>
@@ -34,11 +36,11 @@
           <button id="single-cell-button">Single Cell</button>
           <button id="eraser-button">Eraser</button>
         </div>
-        <ul id="structures"></ul>
+        <ul id="structures" class="structures"></ul>
       </div>
       <canvas id="canvas" width="800" height="800"></canvas>
       <div class="sidebar instructions">
-        <h3>Instructions:</h3>
+        <h3>About</h3>
         <p>
           Constellations is a simulator of Conway's Game of Life. The Game of Life is based on two simple rules:
         </p>
@@ -51,18 +53,6 @@
             A living cell dies unless exactly two or three of its neighbors are alive.
           </li>
         </ol>
-
-        <br/>
-
-        <p>
-          Adjust gameplay using the controls at the top of the screen.
-        </p>
-        <p>
-          Use the left side panel to add or remove cells.
-        </p>
-        <p>
-          Hold down Alt and drag to pan.
-        </p>
       </div>
     </div>
   </body>
