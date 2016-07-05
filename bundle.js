@@ -902,11 +902,6 @@
 	var bindListeners = function(game) {
 	  // Top Control Panel
 	
-	  $(window).on("blur focus", function() {
-	    game.toggleTabFocus();
-	    setPlayButtonText();
-	  });
-	
 	  $('#play-button').click(function(event) {
 	    game.togglePlayState();
 	    setPlayButtonText();
