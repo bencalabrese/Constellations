@@ -1065,7 +1065,7 @@
 	  $('#play-button').attr("data-intro", "Press play to see how it develops");
 	  $('#play-button').attr("data-step", 2);
 	
-	  $('nav').attr("data-intro", "Use these controls to manipulate gameflow");
+	  $('nav').attr("data-intro", "Use these controls to manipulate gameflow.</br></br>Try zooming in!");
 	  $('nav').attr("data-step", 3);
 	
 	  $('#canvas').attr("data-intro", "Hold down ALT and drag to pan to different areas of the grid");
